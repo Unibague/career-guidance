@@ -33,14 +33,14 @@ class AuthController extends Controller
                 'google_id' => $googleUser->id,
                 'password' => 'automatic_generate_password'
             ]);
+            Auth::login($user);
+            return redirect()->route('default');
         }
-        Auth::login($user);
+
         $role = DB::table('roles')->where('id','=',$user->role_id)->first();
 
         if($role->name !== 'user'){
             return redirect()->route('results.report');
         }
-
-        return redirect()->route('default');
     }
 }
