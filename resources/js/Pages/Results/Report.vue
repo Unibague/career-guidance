@@ -28,7 +28,7 @@
 
 
             <!--Inicia tabla-->
-            <v-card>
+<!--            <v-card>
                 <v-data-table
                     :search="search"
                     loading-text="Cargando, por favor espere..."
@@ -50,7 +50,7 @@
                     </template>
 
                 </v-data-table>
-            </v-card>
+            </v-card>-->
         </v-container>
 
 
@@ -160,7 +160,7 @@ export default {
 
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', 'Test_vocacional_2024.xlsx');
+            link.setAttribute('download', 'Test_Vocacional_Desagregado_2024.xlsx');
             document.body.appendChild(link);
             link.click();
         },
@@ -219,7 +219,7 @@ export default {
             var csvURL =  null;
             if (navigator.msSaveBlob)
             {
-                csvURL = navigator.msSaveBlob(csvData, 'Resultados_Test_Vocacional.csv');
+                csvURL = navigator.msSaveBlob(csvData, 'Resultados_Test_Vocacional_Consolidado.csv');
             }
             else
             {
@@ -227,7 +227,7 @@ export default {
             }
             var tempLink = document.createElement('a');
             tempLink.href = csvURL;
-            tempLink.setAttribute('download', 'Resultados_Test_Vocacional.csv');
+            tempLink.setAttribute('download', 'Resultados_Test_Vocacional_Consolidado.csv');
             tempLink.click();
         },
 

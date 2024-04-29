@@ -31,5 +31,17 @@ class Form extends Model
             ]);
     }
 
+    public static function getFormQuestions($formQuestions){
+        $formQuestionsArray = [];
+        $formQuestions = json_decode($formQuestions);
+        usort($formQuestions, function($a, $b)
+        {
+            return strcmp($a->name, $b->name);
+        });
+        foreach ($formQuestions as $formQuestion){
+            $formQuestionsArray [] = $formQuestion->name;
+         }
+        return $formQuestionsArray;
+    }
 
 }

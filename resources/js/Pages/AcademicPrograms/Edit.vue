@@ -5,14 +5,14 @@
 
         <v-container>
             <div class="d-flex flex-column align-end mb-7">
-                <h2 class="align-self-start">Gestionar Programas académicos </h2>
+                <h2 class="align-self-start">Visualizando el programa académico {{this.academicProgram.name}}</h2>
                 <div>
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
-                        @click="syncAcademicPrograms"
+                        @click="createQuestionDialog=true"
                     >
-                        Sincronizar programas académicos
+                        Crear nueva pregunta
                     </v-btn>
                 </div>
             </div>
@@ -33,7 +33,7 @@
                     loading-text="Cargando, por favor espere..."
                     :loading="isLoading"
                     :headers="headers"
-                    :items="academicPrograms"
+                    :items="academicProgramQuestions"
                     :items-per-page="20"
                     :footer-props="{
                         'items-per-page-options': [20,50,100,-1]
@@ -41,28 +41,72 @@
                     class="elevation-1"
                 >
 
-                    <template v-slot:item.actions="{ item }">
+<!--                    <template v-slot:item.actions="{ item }">
                         <v-tooltip top >
                             <template v-slot:activator="{on,attrs}">
                                 <InertiaLink :href="route('api.academicPrograms.edit', {academicProgram:item.code})">
                                     <v-icon
                                         v-bind="attrs"
                                         v-on="on"
-                                        class="mr-2 primario--text"
+                                        class="mr-2 primario&#45;&#45;text"
                                     >
                                         mdi-school
                                     </v-icon>
                                 </InertiaLink>
                             </template>
-                            <span>Visualizar programa académico</span>
+                            <span></span>
                         </v-tooltip>
-                    </template>
+                    </template>-->
 
 
 
                 </v-data-table>
             </v-card>
             <!--Acaba tabla-->
+
+            <!--Crear o editar Compromiso-->
+            <v-dialog
+                v-model="createQuestionDialog"
+                persistent
+                max-width="650px"
+            >
+                <v-card>
+                    <v-card-title>
+                        <span>
+                        </span>
+                        <span class="text-h5">Crear/Editar pregunta</span>
+                    </v-card-title>
+                    <v-card-text>
+                        <v-container>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-text-field
+                                        label="Ingrese el nombre de la pregunta"
+                                        v-model="question"
+                                    ></v-text-field>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            color="primario"
+                            text
+                            @click="createQuestionDialog=false"
+                        >
+                            Cancelar
+                        </v-btn>
+                        <v-btn
+                            color="primario"
+                            text
+                            @click="createQuestion()"
+                        >
+                            Guardar cambios
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
 
 
         </v-container>
@@ -85,18 +129,20 @@ export default {
         Snackbar,
 
     },
+    props:{
+        academicProgram: Object
+    },
     data: () => {
         return {
             //Table info
             search:'',
             headers: [
-                {text: 'Código', value: 'code', align: 'center'},
-                {text: 'Nombre', value: 'name'},
+                {text: 'Nombre', value: 'question'},
                 {text: 'Acciones', value: 'actions', sortable: false},
             ],
             assessmentPeriods: [],
-            academicPrograms: [],
-            //Units models
+            academicProgramQuestions: [],
+            question:'',
 
             //Snackbars
             snackbar: {
@@ -108,34 +154,34 @@ export default {
             //Dialogs
             deleteDependencyDialog: false,
             isLoading: true,
+            createQuestionDialog: false,
 
         }
     },
 
     async created() {
-        await this.getAcademicPrograms();
+        await this.getAcademicProgramQuestions();
         // this.capitalize();
         this.isLoading = false;
     },
 
     methods: {
 
-        syncAcademicPrograms: async function () {
-            try {
-                let request = await axios.post(route('api.academicPrograms.sync'));
-                console.log(request);
-                showSnackbar(this.snackbar, request.data.message, 'success');
-                await this.getAcademicPrograms();
-            } catch (e) {
-                showSnackbar(this.snackbar, e.response.data.message, 'alert', 7000);
-            }
+        getAcademicProgramQuestions: async function () {
+            let request = await axios.get(route('api.academicProgramQuestions.index', {academicProgram:this.academicProgram.code}))
+            this.academicProgramQuestions = request.data;
+            console.log(this.academicProgram)
+            console.log(request.data);
         },
 
-        getAcademicPrograms: async function () {
-            let request = await axios.get(route('api.academicPrograms.index'));
-            this.academicPrograms = request.data
-            console.log(this.academicPrograms);
-        },
+        async createQuestion(){
+            let data = {academicProgram: this.academicProgram, question:this.question}
+            let request = await axios.post(route('api.academicProgramQuestions.store'), data)
+            showSnackbar(this.snackbar, request.data.message, 'success');
+            await this.getAcademicProgramQuestions();
+            this.createQuestionDialog = false;
+            console.log(request.data);
+        }
 
     },
 

@@ -36,5 +36,32 @@ class AcademicProgram extends Model
         return self::with('academicProgramQuestions')->get();
     }
 
+
+    /**
+     * Retrieve the model for a bound value.
+     *
+     * @param  mixed  $value
+     * @param  string|null  $field
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        // Use 'code' field for route binding instead of 'id'
+        $field = $field ?: $this->getRouteKeyName();
+
+        return $this->where($field, $value)->firstOrFail();
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        // Use 'code' field as the route key
+        return 'code';
+    }
+
     use HasFactory;
 }

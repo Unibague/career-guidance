@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ResultsExport;
+use App\Models\Form;
 use App\Models\FormAnswer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,12 +40,10 @@ class FormAnswerResultController extends Controller
 
 
         //Query all the users, then have to retrieve all the users in an array first
-
         $users = DB::table('external_users as eu')->get()->toArray();
         $usersIdentification = array_unique(array_column($users,'identification'));
         $finalData = [];
         foreach ($usersIdentification as $userIdentification){
-
             $userAcademicProgramsResults =  DB::table('external_users as eu')->select(['ap.name','far.academic_program_code','far.result as value'])
                 ->where('eu.identification','=',$userIdentification)
                 ->join('form_answers as fa','eu.id','=','fa.user_id')
@@ -71,17 +70,17 @@ class FormAnswerResultController extends Controller
     public function downloadSpecificReport()
     {
 
-    //First get the headers (the questions) of the form.
-    $academicProgramsQuestions = DB::table('academic_program_questions')->orderBy('question','asc')->get()->toArray();
-    $academicProgramsQuestionsArray = array_unique(array_column($academicProgramsQuestions,'question'));
+    //First get the headers (the questions) of the specific form.
+    $form = DB::table('forms')->first();
+    $academicProgramsQuestionsArray = Form::getFormQuestions($form->questions);
+
     $headers = ['Sexo', 'Edad'];
     $headers = array_merge($headers, $academicProgramsQuestionsArray);
 
-        $formAnswers = DB::table('form_answers')->get();
-        $finalData = [];
+    $formAnswers = DB::table('form_answers')->where('form_id','=',$form->id)->get();
+    $finalData = [];
 
        foreach ($formAnswers as $formAnswer){
-
            //First, get the attributes from the user
            $userInfo = DB::table('external_users')->where('id','=',$formAnswer->user_id)->first();
            $userData = [];
@@ -94,7 +93,6 @@ class FormAnswerResultController extends Controller
         }
 
         return Excel::download(new ResultsExport($finalData, $headers), 'Test_Vocacional.xlsx');
-
     }
 
 

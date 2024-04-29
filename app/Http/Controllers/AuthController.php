@@ -34,12 +34,12 @@ class AuthController extends Controller
                 'password' => 'automatic_generate_password'
             ]);
             Auth::login($user);
-            return redirect()->route('default');
+            return redirect()->route('newLoggedUser.landing');
         }
 
         $role = DB::table('roles')->where('id','=',$user->role_id)->first();
 
-        if($role->name !== 'user'){
+        if($role->name === 'admin'){
             return redirect()->route('results.report');
         }
     }

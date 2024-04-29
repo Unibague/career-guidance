@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Form;
+use App\Models\AcademicProgram;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class FormController extends Controller
+class AcademicProgramQuestionsController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(DB::table('forms')->get());
+        $academicProgramCode = $request->input('academicProgram');
+        return response()->json(DB::table('academic_program_questions')->where('academic_program_code','=',$academicProgramCode)->get());
     }
 
     /**
@@ -36,8 +37,12 @@ class FormController extends Controller
      */
     public function store(Request $request)
     {
-        Form::createForm($request);
-        return response()->json(['message' => 'Formulario creado exitosamente']);
+        $academicProgram = $request->input('academicProgram');
+        $question = $request->input('question');
+        DB::table('academic_program_questions')->updateOrInsert(
+            ['academic_program_code' => $academicProgram["code"], 'question' => $question],
+            ['question' => $question]);
+        return response()->json(['message' => 'Pregunta añadida correctamente']);
     }
 
     /**
@@ -60,10 +65,6 @@ class FormController extends Controller
     public function edit($id)
     {
         //
-    }
-
-    public static function getAllFormQuestions(){
-
     }
 
     /**

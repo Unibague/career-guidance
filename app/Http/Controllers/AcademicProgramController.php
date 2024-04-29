@@ -7,6 +7,7 @@ use App\Models\AcademicProgram;
 use App\Models\Dependency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class AcademicProgramController extends Controller
 {
@@ -66,9 +67,12 @@ class AcademicProgramController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(AcademicProgram $academicProgram)
     {
-        //
+
+
+
+        return Inertia::render('AcademicPrograms/Edit', ['academicProgram' => $academicProgram]);
     }
 
     /**
