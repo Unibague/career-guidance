@@ -33,7 +33,7 @@ class AcademicProgram extends Model
     }
 
     public static function getAcademicPrograms(){
-        return self::with('academicProgramQuestions')->get();
+        return self::with('academicProgramQuestions')->orderBy('name','asc')->get();
     }
 
 

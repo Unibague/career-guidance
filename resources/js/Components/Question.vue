@@ -22,7 +22,7 @@
                     <v-select
                         color="primario"
                         v-model="program_code"
-                        :items="type === 'abierta' ? ['General'] : academicPrograms"
+                        :items="filteredAcademicPrograms"
                         :item-text="(academicProgram)=>academicProgram.name"
                         :item-value="(academicProgram)=>academicProgram.code"
                         label="Selecciona el programa al que corresponde la pregunta"
@@ -120,6 +120,7 @@ export default {
             options: [],
         }
     },
+
     created() {
         this.getAcademicPrograms();
         const question = JSON.parse(JSON.stringify(this.question));
@@ -131,6 +132,13 @@ export default {
     },
 
     computed: {
+
+        filteredAcademicPrograms(){
+            return this.academicPrograms.filter(academicProgram => {
+                return academicProgram.academic_program_questions.length > 0;
+            })
+        },
+
         academicProgramQuestions(){
             return this.getSelectedAcademicProgramQuestions();
         }

@@ -115,11 +115,7 @@ export default {
             const url = route('api.forms.questions.show', {form: this.getFormId()});
             try {
                 let request = await axios.get(url);
-
-
-
                 this.questions = Question.fromRequest(request.data);
-
                 console.log(this.questions,'the questions');
             } catch (e) {
             }

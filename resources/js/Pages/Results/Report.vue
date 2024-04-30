@@ -149,7 +149,7 @@ export default {
 
         async downloadSpecificReport(){
 
-            const request = await fetch(route('results.specificReport'), {
+            const request = await fetch(route('results.testSpecificReport'), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/octet-stream' // Assuming the response is binary

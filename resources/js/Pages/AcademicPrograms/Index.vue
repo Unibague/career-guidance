@@ -57,9 +57,6 @@
                             <span>Visualizar programa académico</span>
                         </v-tooltip>
                     </template>
-
-
-
                 </v-data-table>
             </v-card>
             <!--Acaba tabla-->
@@ -92,6 +89,7 @@ export default {
             headers: [
                 {text: 'Código', value: 'code', align: 'center'},
                 {text: 'Nombre', value: 'name'},
+                {text: 'Preguntas', value: 'academic_program_questions.length'},
                 {text: 'Acciones', value: 'actions', sortable: false},
             ],
             assessmentPeriods: [],

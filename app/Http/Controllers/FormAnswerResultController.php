@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ResultsExport;
+use App\Exports\ResultsViewExport;
 use App\Models\Form;
 use App\Models\FormAnswer;
 use Illuminate\Http\Request;
@@ -93,6 +94,42 @@ class FormAnswerResultController extends Controller
         }
 
         return Excel::download(new ResultsExport($finalData, $headers), 'Test_Vocacional.xlsx');
+    }
+
+    public function testDownloadSpecificReport()
+    {
+        //First get the headers (the questions) of the specific form.
+        $form = DB::table('forms')->first();
+
+        $academicProgramsQuestionsArray = Form::getFormQuestions($form->questions);
+
+        $formAnswers = DB::table('form_answers')->where('form_id','=',$form->id)->get();
+        $tableData = [];
+
+        foreach ($formAnswers as $formAnswer){
+            //First, get the attributes from the user
+            $rowData = [];
+
+            $formAnswerAsJson = (json_decode($formAnswer->answers, false, 512, JSON_THROW_ON_ERROR));
+            $userInfo = DB::table('external_users')->where('id','=',$formAnswer->user_id)->first();
+
+            //First we insert the sex and age of every user
+            $rowData [] = $userInfo->sex;
+            $rowData [] = $userInfo->age;
+
+            //Now we insert the results for every question in case the question exists in the form_answer
+            foreach ($academicProgramsQuestionsArray as $question){
+                $result = Form::findFirstOccurrence($formAnswerAsJson, $question);
+                if ($result){
+                    $rowData[] = $result->answer;
+                    continue;
+                }
+                $rowData [] = "";
+            }
+            $tableData[] = $rowData;
+        }
+
+        return Excel::download(new ResultsViewExport($academicProgramsQuestionsArray, $tableData), 'Test_Vocacional.xlsx');
     }
 
 

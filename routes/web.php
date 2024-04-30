@@ -62,6 +62,7 @@ Route::inertia('/results/report', 'Results/Report')->middleware(['auth', 'isAdmi
 Route::post('/results/graph', [\App\Http\Controllers\FormAnswerResultController::class, 'showGraph'])->name('results.showGraph');
 Route::post('results/academicPrograms',[ \App\Http\Controllers\FormAnswerResultController::class, 'index'])->name('results.academicPrograms');
 Route::get('results/specificReport',[ \App\Http\Controllers\FormAnswerResultController::class, 'downloadSpecificReport'])->name('results.specificReport');
+Route::get('results/testSpecificReport',[ \App\Http\Controllers\FormAnswerResultController::class, 'testDownloadSpecificReport'])->name('results.testSpecificReport');
 
 /* >>>>>Roles routes <<<<<< */
 

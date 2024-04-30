@@ -15,10 +15,6 @@ export default class Question {
                 value: 'multiple',
                 placeholder: 'Selección múltiple'
             },
-            {
-                value: 'abierta',
-                placeholder: 'Pregunta abierta'
-            }
         ];
     }
 

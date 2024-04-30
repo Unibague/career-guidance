@@ -44,4 +44,13 @@ class Form extends Model
         return $formQuestionsArray;
     }
 
+    public static function findFirstOccurrence($array, $value) {
+        foreach ($array as $item) {
+            if ($item->name === $value) {
+                return $item; // Return the first occurrence found
+            }
+        }
+        return null; // Return null if the value is not found in the array
+    }
+
 }
