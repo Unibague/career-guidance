@@ -40,7 +40,7 @@ class AcademicProgramQuestionsController extends Controller
     {
         $academicProgramQuestion = $request->all();
         DB::table('academic_program_questions')->updateOrInsert(
-            ['academic_program_code' => $academicProgramQuestion["program_code"], 'question' => $academicProgramQuestion["name"]],
+            ['academic_program_code' => $academicProgramQuestion["academic_program_code"], 'question' => $academicProgramQuestion["name"]],
             ['question' => $academicProgramQuestion["name"]]);
         return response()->json(['message' => 'Pregunta añadida correctamente']);
     }

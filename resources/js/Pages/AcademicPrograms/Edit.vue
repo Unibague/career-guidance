@@ -259,8 +259,8 @@ export default {
 
         editAcademicProgramQuestion: async function () {
             //Verify request
-
             this.editedAcademicProgramQuestion.academic_program_code = this.academicProgram.code;
+
             if (this.editedAcademicProgramQuestion.hasEmptyProperties()) {
                 showSnackbar(this.snackbar, 'Debes diligenciar todos los campos obligatorios', 'red', 2000);
                 return;
@@ -314,7 +314,8 @@ export default {
         },
         createAcademicProgramQuestion: async function () {
 
-            this.newAcademicProgramQuestion.program_code = this.academicProgram.code;
+            this.newAcademicProgramQuestion.academic_program_code = this.academicProgram.code;
+            console.log(this.newAcademicProgramQuestion);
 
             if (this.newAcademicProgramQuestion.hasEmptyProperties()) {
                 showSnackbar(this.snackbar, 'Debes diligenciar todos los campos obligatorios', 'red', 2000);
