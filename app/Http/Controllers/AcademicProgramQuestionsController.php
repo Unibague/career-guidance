@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademicProgram;
+use App\Models\AcademicProgramQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +17,7 @@ class AcademicProgramQuestionsController extends Controller
     public function index(Request $request)
     {
         $academicProgramCode = $request->input('academicProgram');
-        return response()->json(DB::table('academic_program_questions')->where('academic_program_code','=',$academicProgramCode)->get());
+        return response()->json(DB::table('academic_program_questions')->select(['id','academic_program_code','question as name'])->where('academic_program_code','=',$academicProgramCode)->get());
     }
 
     /**
@@ -37,11 +38,10 @@ class AcademicProgramQuestionsController extends Controller
      */
     public function store(Request $request)
     {
-        $academicProgram = $request->input('academicProgram');
-        $question = $request->input('question');
+        $academicProgramQuestion = $request->all();
         DB::table('academic_program_questions')->updateOrInsert(
-            ['academic_program_code' => $academicProgram["code"], 'question' => $question],
-            ['question' => $question]);
+            ['academic_program_code' => $academicProgramQuestion["program_code"], 'question' => $academicProgramQuestion["name"]],
+            ['question' => $academicProgramQuestion["name"]]);
         return response()->json(['message' => 'Pregunta añadida correctamente']);
     }
 
@@ -74,9 +74,11 @@ class AcademicProgramQuestionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, AcademicProgramQuestion $academicProgramQuestion)
     {
-        //
+        $data = $request->all();
+        DB::table('academic_program_questions')->updateOrInsert(['id' => $data['id']] , ['question' => $data['name']]);
+        return response()->json(['message' => 'Pregunta actualizada correctamente']);
     }
 
     /**
@@ -85,8 +87,13 @@ class AcademicProgramQuestionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(AcademicProgramQuestion $academicProgramQuestion)
     {
-        //
+        try{
+            $academicProgramQuestion->delete();
+        } catch (\Exception $exception){
+            return response()->json(['message' => 'No puedes borrar una pregunta si esta ya ha sido contestada en algún formulario!'],400);
+        }
+        return response()->json(['message' => 'Pregunta borrada exitosamente']);
     }
 }
