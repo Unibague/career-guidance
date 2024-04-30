@@ -18,6 +18,7 @@ class CreateFormsTable extends Migration
             $table->string('name');
             $table->longText('description');
             $table->json('questions')->nullable();
+            $table->boolean('active')->default(0);
             $table->timestamps();
         });
     }

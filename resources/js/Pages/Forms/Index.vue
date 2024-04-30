@@ -22,16 +22,6 @@
                         <v-list>
                             <v-subheader>Menú de otras opciones</v-subheader>
                             <v-list-item
-                                @click="openMigrateFormsDialog"
-                            >
-                                <v-list-item-avatar>
-                                    <v-icon>
-                                        mdi-rotate-right
-                                    </v-icon>
-                                </v-list-item-avatar>
-                                <v-list-item-title>Migrar formularios de periodos anteriores</v-list-item-title>
-                            </v-list-item>
-                            <v-list-item
                                 @click="getFormsWithoutQuestions"
                             >
                                 <v-list-item-avatar>
@@ -84,6 +74,7 @@
                         'items-per-page-options': [20,50,100,-1]
                     }"
                 class="elevation-1"
+                :item-class="getRowColor"
             >
                 <template v-slot:item="{ item }">
                     <tr>
@@ -146,6 +137,21 @@
                                     </v-icon>
                                 </template>
                                 <span>Borrar formulario</span>
+                            </v-tooltip>
+
+                            <v-tooltip top>
+                                <template v-slot:activator="{on,attrs}">
+                                    <v-icon
+                                        v-bind="attrs"
+                                        v-on="on"
+                                        v-if="!(item.active)"
+                                        class="mr-2 primario--text"
+                                        @click="setFormAsActive(item.id)"
+                                    >
+                                        mdi-cursor-default-click
+                                    </v-icon>
+                                </template>
+                                <span>Definir como formulario activo</span>
                             </v-tooltip>
                         </td>
                     </tr>
@@ -304,6 +310,10 @@ export default {
 
     methods: {
 
+        getRowColor: function (item) {
+            return !item.active  ? '#E91E63' : '';
+        },
+
         async getFormsWithoutQuestions () {
             let request = await axios.get(route('api.forms.withoutQuestions'));
             this.forms = Form.createFormsFromArray(request.data);
@@ -312,20 +322,11 @@ export default {
             this.sheet = false;
         },
 
-        migrateForms: async function (assessmentPeriod) {
-            let request = await axios.get(route('api.forms.copyFromPeriod', {assessmentPeriod}));
-            await this.getAllForms();
-            this.migrateFormsDialog = false;
-            showSnackbar(this.snackbar, 'Se han cargado los formularios del periodo de evaluación seleccionado', 'success');
-            this.sheet = false;
-        },
-
         setFormAsActive: async function (formId) {
             try {
-                let request = await axios.post(route('api.forms.setActive', {'form': formId}));
-                this.createOrEditDialog.dialogStatus = false;
+                let request = await axios.post(route('api.forms.setActive', {form: formId}));
                 showSnackbar(this.snackbar, request.data.message, 'success');
-                this.getAllForms();
+                await this.getAllForms();
             } catch (e) {
                 showSnackbar(this.snackbar, prepareErrorText(e), 'alert');
             }
@@ -363,22 +364,12 @@ export default {
             }
         },
 
-        async openMigrateFormsDialog(){
-            this.migrateFormsDialog = true
-            let request = await axios.get(route('api.assessmentPeriods.index'));
-            let assessmentPeriods = request.data;
-            this.assessmentPeriodsMigrateList = assessmentPeriods.filter(assessmentPeriod => {
-                return assessmentPeriod.active === 0;
-            });
-            console.log(this.assessmentPeriodsMigrateList);
-
-        },
-
         getAllForms: async function (notify = false) {
             let request = await axios.get(route('api.forms.index'));
-
             this.forms = Form.createFormsFromArray(request.data);
+            console.log(this.forms);
             this.formatForms();
+            console.log(this.othersForms);
             if (notify) {
                 showSnackbar(this.snackbar, 'Mostrando todos los formularios')
             }

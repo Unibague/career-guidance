@@ -11,7 +11,7 @@ export default class Form {
     }
 
     static copy(form) {
-        return new Form(form.id, form.name, form.description);
+        return new Form(form.id, form.name, form.description, form.active);
     }
 
     static createFormsFromArray(models) {
@@ -23,18 +23,20 @@ export default class Form {
     }
 
     static fromModel(model) {
-        return new Form(model.id, model.name, model.description);
+        return new Form(model.id, model.name, model.description, model.active);
     }
 
-    constructor(id = null, name = '', description = '') {
+    constructor(id = null, name = '', description = '', active = false) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.active = active;
 
         this.dataStructure = {
             id: null,
             name: 'required',
             description: null,
+            active:0,
 
         }
     }

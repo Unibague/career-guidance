@@ -20,6 +20,11 @@ class Form extends Model
         return self::all();
     }
 
+    public static function getActiveForm()
+    {
+        return self::where('active', '=',   1)->firstOrFail();
+    }
+
     public static function createForm($request)
     {
         return self::UpdateOrCreate(

@@ -34,12 +34,16 @@ class AuthController extends Controller
                 'google_id' => $googleUser->id,
                 'password' => 'automatic_generate_password'
             ]);
+            $role = Role::where('name', 'user')->first();
         }
+
+        else{
+            $role = DB::table('roles')->where('id','=',$user->role_id)->first();
+        }
+
         Auth::login($user);
 
-        $role = DB::table('roles')->where('id','=',$user->role_id)->first();
         session(['role' => $role->id]);
-
         if($role->name == "admin"){
             return redirect()->route('results.report');
         }

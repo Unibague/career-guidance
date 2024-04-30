@@ -62,6 +62,22 @@ class FormController extends Controller
         //
     }
 
+    public function setFormAsActive(Request $request ,Form $form)
+    {
+        //Detect previous assessment period
+        try {
+            $active = Form::getActiveForm();
+            $active->active = false;
+            $active->timestamps = false;
+            $active->save();
+        } catch (\Exception $e) {
+        } finally {
+            $form->active = true;
+            $form->save();
+        }
+        return response()->json(['message' => 'Formulario activo actualizado correctamente']);
+
+    }
     public static function getAllFormQuestions(){
 
     }

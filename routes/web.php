@@ -48,11 +48,15 @@ Route::inertia('/forms', 'Forms/Index')->middleware(['auth', 'isAdmin'])->name('
 
 Route::inertia('/forms/{form}', 'Forms/Show')->middleware(['auth', 'isAdmin'])->name('forms.show.view');
 
+Route::post('api/forms/{form}/setActive', [\App\Http\Controllers\FormController::class, 'setFormAsActive'])->name('api.forms.setActive')
+    ->middleware(['auth', 'isAdmin']);
 Route::resource('api/forms', \App\Http\Controllers\FormController::class, [
     'as' => 'api'
 ])->middleware('auth');
+
 Route::get('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestionController::class, 'getByFormId'])->name('api.forms.questions.show')
     ->middleware(['auth']);
+
 Route::patch('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestionController::class, 'storeOrUpdate'])->name('api.forms.questions.store')
     ->middleware(['auth']);
 

@@ -18,5 +18,12 @@ class Role extends Model
         return $selectedRole->customId;
     }
 
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+
     use HasFactory;
 }
