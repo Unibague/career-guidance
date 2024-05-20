@@ -249,6 +249,12 @@ export default {
                         icon: 'mdi-cog-box'
                     },
                     {
+                        name: 'Áreas de conocimiento',
+                        href: route('academicAreas.index'),
+                        role: 3,
+                        icon: 'mdi-cog-box'
+                    },
+                    {
                         name: 'Formularios',
                         href: route('forms.index.view'),
                         role: 3,

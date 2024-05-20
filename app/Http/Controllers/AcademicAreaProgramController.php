@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\AtlanteProvider;
 use App\Models\AcademicProgram;
-use App\Models\Dependency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
 
-class AcademicProgramController extends Controller
+class AcademicAreaProgramController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,16 +15,17 @@ class AcademicProgramController extends Controller
      */
     public function index()
     {
-        return response()->json(AcademicProgram::getAcademicPrograms());
+        //
     }
 
-
-    public function sync(){
-
-        $academicPrograms = AtlanteProvider::get('academicPrograms');
-        AcademicProgram::createOrUpdateFromArray($academicPrograms);
-        return response()->json(['message' => 'Los programas académicos se han sincronizado exitosamente']);
+    public function assign(Request $request)
+    {
+        $academicProgramCode = $request->input('academicProgram');
+        $academicArea = $request->input('academicArea');
+        DB::table('academic_programs')->where('code','=',$academicProgramCode)->update(['academic_area_id'=> $academicArea['id']]);
+        return response()->json(['message' => 'Programa vinculado correctamente al area']);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -67,9 +65,9 @@ class AcademicProgramController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(AcademicProgram $academicProgram)
+    public function edit($id)
     {
-        return Inertia::render('AcademicPrograms/Edit', ['academicProgram' => $academicProgram]);
+        //
     }
 
     /**
@@ -90,8 +88,16 @@ class AcademicProgramController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(AcademicProgram $academicProgram)
     {
-        //
+        dd($academicProgram);
     }
+
+    public function delete(Request $request)
+    {
+        $academicProgram = $request->input('academicAreaProgram');
+        DB::table('academic_programs')->where('code','=',$academicProgram)->update(['academic_area_id'=>null]);
+        return response()->json(['message' => 'Programa desvinculado del area correctamente']);
+    }
+
 }

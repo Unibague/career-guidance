@@ -77,9 +77,9 @@ class User extends Authenticatable
         return $this->role->customId >= $roleNumber;
     }
 
-    public static function createExternalUser($name, $identification, $age, $sex, $phone){
+    public static function createExternalUser($name, $identification, $age, $sex){
         return  DB::table('external_users')->updateOrInsert(['identification' => $identification ],
-            ['name' => $name, 'age' => $age, 'sex' => $sex, 'phone' => $phone, 'created_at' => Carbon::now()->toDateTimeString(),
+            ['name' => $name, 'age' => $age, 'sex' => $sex, 'created_at' => Carbon::now()->toDateTimeString(),
             'updated_at' => Carbon::now()->toDateTimeString()]);
     }
 

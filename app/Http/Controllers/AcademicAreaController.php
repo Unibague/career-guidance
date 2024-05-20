@@ -2,32 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\AtlanteProvider;
-use App\Models\AcademicProgram;
-use App\Models\Dependency;
+use App\Models\AcademicArea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
-class AcademicProgramController extends Controller
+class AcademicAreaController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(AcademicProgram::getAcademicPrograms());
+        $academicAreaId = $request->input('academicArea');
+        if($academicAreaId !== null){
+            return response()->json(DB::table('academic_programs')->where('academic_area_id','=',$academicAreaId)->get());
+        }
+        return response()->json(AcademicArea::getAcademicAreas());
     }
 
-
-    public function sync(){
-
-        $academicPrograms = AtlanteProvider::get('academicPrograms');
-        AcademicProgram::createOrUpdateFromArray($academicPrograms);
-        return response()->json(['message' => 'Los programas académicos se han sincronizado exitosamente']);
-    }
 
     /**
      * Show the form for creating a new resource.
@@ -47,7 +42,9 @@ class AcademicProgramController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        AcademicArea::create($request->all());
+        return response()->json(['message' => 'Área creada exitosamente']);
+
     }
 
     /**
@@ -67,9 +64,9 @@ class AcademicProgramController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(AcademicProgram $academicProgram)
+    public function edit(AcademicArea $academicArea)
     {
-        return Inertia::render('AcademicPrograms/Edit', ['academicProgram' => $academicProgram]);
+        return Inertia::render('AcademicAreas/Edit', ['academicArea' => $academicArea]);
     }
 
     /**
@@ -79,9 +76,11 @@ class AcademicProgramController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, AcademicArea $academicArea)
     {
-        //
+        $academicArea->update($request->all());
+        return response()->json(['message' => 'Área actualizada exitosamente']);
+
     }
 
     /**

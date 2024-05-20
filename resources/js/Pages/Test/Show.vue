@@ -89,6 +89,7 @@
 
                     <form :action="route('results.showGraph')" method="POST">
                         <input type="hidden" name="user" :value="JSON.stringify(user)">
+                        <input type="hidden" name="answers" :value="JSON.stringify(this.test.questions)">
                         <v-btn
                             type="submit"
                             color="primario"

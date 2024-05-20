@@ -28,7 +28,6 @@ class ValidateUserInfoRequest extends FormRequest
             'identification' => 'required|integer|',
             'age' => 'required|numeric|between:1,99',
             'sex' => 'required|string|in:Hombre,Mujer',
-            'phone' => 'required|integer|',
         ];
     }
 
@@ -43,7 +42,6 @@ class ValidateUserInfoRequest extends FormRequest
         return[
             'identification.integer' => 'Escribe tu número de identificación sin puntos, comas, espacios o letras',
             'age.between' => 'La edad debe ser un número entre 1 y 99',
-            'phone.integer' => 'Escribe tu teléfono sin puntos, comas, espacios o letras',
         ];
     }
 

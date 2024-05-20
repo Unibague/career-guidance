@@ -5,14 +5,14 @@
 
         <v-container>
             <div class="d-flex flex-column align-end mb-7">
-                <h2 class="align-self-start">Visualizando el programa académico {{this.academicProgram.name}}</h2>
+                <h2 class="align-self-start">Gestionar Áreas de conocimiento </h2>
                 <div>
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
-                        @click="setAcademicProgramQuestionDialogToCreateOrEdit('create')"
+                        @click="setAcademicAreaDialogToCreateOrEdit('create')"
                     >
-                        Crear nueva pregunta
+                        Crear nueva área
                     </v-btn>
                 </div>
             </div>
@@ -33,7 +33,7 @@
                     loading-text="Cargando, por favor espere..."
                     :loading="isLoading"
                     :headers="headers"
-                    :items="academicProgramQuestions"
+                    :items="academicAreas"
                     :items-per-page="20"
                     :footer-props="{
                         'items-per-page-options': [20,50,100,-1]
@@ -41,23 +41,42 @@
                     class="elevation-1"
                 >
 
-                    <template v-slot:item.actions="{ item }">
-                        <v-icon
-                            class="mr-2 primario--text"
-                            @click="setAcademicProgramQuestionDialogToCreateOrEdit('edit',item)"
-                        >
-                            mdi-pencil
-                        </v-icon>
-
-                        <v-icon
-                            class="primario--text"
-                            @click="confirmDeleteAcademicProgramQuestion(item)"
-                        >
-                            mdi-delete
-                        </v-icon>
+                    <template v-slot:item.academic_programs="{ item }">
+                        {{mapAcademicPrograms(item.academic_programs)}}
                     </template>
 
+                    <template v-slot:item.actions="{ item }">
+                        <v-tooltip top >
+                            <template v-slot:activator="{on,attrs}">
+                                <InertiaLink :href="route('api.academicAreas.edit', {academicArea:item.id})">
+                                    <v-icon
+                                        v-bind="attrs"
+                                        v-on="on"
+                                        class="mr-2 primario--text"
+                                    >
+                                        mdi-school
+                                    </v-icon>
+                                </InertiaLink>
+                            </template
+                            <span>Visualizar área</span>
+                        </v-tooltip>
 
+                        <v-tooltip top >
+                            <template v-slot:activator="{on,attrs}">
+                                    <v-icon
+                                        v-bind="attrs"
+                                        v-on="on"
+                                        class="mr-2 primario--text"
+                                        @click="setAcademicAreaDialogToCreateOrEdit('edit',item)"
+                                    >
+                                        mdi-pencil
+                                    </v-icon>
+                            </template>
+                            <span>Editar programas académicos </span>
+                        </v-tooltip>
+
+
+                    </template>
                 </v-data-table>
             </v-card>
             <!--Acaba tabla-->
@@ -75,18 +94,34 @@
                     <v-card-title>
                         <span>
                         </span>
-                        <span class="text-h5">Crear/Editar pregunta</span>
+                        <span class="text-h5">Crear/Editar área de conocimiento</span>
                     </v-card-title>
                     <v-card-text>
                         <v-container>
                             <v-row>
                                 <v-col cols="12">
                                     <v-text-field
-                                        label="Nombre de la pregunta"
+                                        label="Nombre del área"
                                         required
                                         v-model="$data[createOrEditDialog.model].name"
                                     ></v-text-field>
                                 </v-col>
+                                <v-col cols="12">
+                                    <v-textarea
+                                        label="Mensaje descriptivo del área"
+                                        required
+                                        v-model="$data[createOrEditDialog.model].message"
+                                    ></v-textarea>
+                                </v-col>
+
+<!--                                <v-col cols="3" v-for="academicProgram in $data[createOrEditDialog.model].academicPrograms" :key="academicProgram.id">-->
+<!--                                    <v-textarea-->
+<!--                                        label="Mensaje descriptivo del área"-->
+<!--                                        required-->
+<!--                                        v-model="academicProgram.id"-->
+<!--                                    ></v-textarea>-->
+<!--                                </v-col>-->
+
                             </v-row>
                         </v-container>
                         <small>Los campos con * son obligatorios</small>
@@ -111,22 +146,7 @@
                 </v-card>
             </v-dialog>
 
-            <!--Confirmar borrar pregunta-->
-            <confirm-dialog
-                :show="deleteAcademicProgramQuestionDialog"
-                @canceled-dialog="deleteAcademicProgramQuestionDialog = false"
-                @confirmed-dialog="deleteAcademicProgramQuestion(deletedAcademicProgramQuestionId)"
-            >
-                <template v-slot:title>
-                    Estás a punto de eliminar la pregunta seleccionada
-                </template>
 
-                ¡Cuidado! Ya no se podrá observar esta pregunta al generar el reporte de las respuestas obtenidas.
-
-                <template v-slot:confirm-button-text>
-                    Borrar
-                </template>
-            </confirm-dialog>
         </v-container>
     </AuthenticatedLayout>
 </template>
@@ -137,7 +157,7 @@ import {InertiaLink} from "@inertiajs/inertia-vue";
 import {prepareErrorText, showSnackbar} from "@/HelperFunctions"
 import ConfirmDialog from "@/Components/ConfirmDialog";
 import Snackbar from "@/Components/Snackbar";
-import AcademicProgramQuestion from "@/models/AcademicProgramQuestion";
+import AcademicArea from "@/models/AcademicArea";
 
 
 export default {
@@ -146,10 +166,6 @@ export default {
         AuthenticatedLayout,
         InertiaLink,
         Snackbar,
-
-    },
-    props:{
-        academicProgram: Object
     },
     data: () => {
         return {
@@ -157,10 +173,12 @@ export default {
             search:'',
             headers: [
                 {text: 'Nombre', value: 'name'},
+                {text: 'Programas académicos', value: 'academic_programs'},
+                {text: 'Descripción', value: 'message'},
                 {text: 'Acciones', value: 'actions', sortable: false},
             ],
-            assessmentPeriods: [],
-            academicProgramQuestions: [],
+            academicAreas: [],
+            //Units models
 
             //Snackbars
             snackbar: {
@@ -170,17 +188,17 @@ export default {
                 timeout: 2000,
             },
             //Dialogs
-
+            deleteDependencyDialog: false,
             isLoading: true,
 
-            newAcademicProgramQuestion: new AcademicProgramQuestion(),
-            editedAcademicProgramQuestion: new AcademicProgramQuestion(),
-            deletedAcademicProgramQuestionId: 0,
+            newAcademicArea: new AcademicArea(),
+            editedAcademicArea: new AcademicArea(),
+            deletedAcademicAreaId: 0,
 
-            deleteAcademicProgramQuestionDialog: false,
+            deleteAcademicAreaDialog: false,
             createOrEditDialog: {
-                model: 'newAcademicProgramQuestion',
-                method: 'createAcademicProgramQuestion',
+                model: 'newAcademicArea',
+                method: 'createAcademicArea',
                 dialogStatus: false,
             },
 
@@ -188,106 +206,104 @@ export default {
     },
 
     async created() {
-        await this.getAcademicProgramQuestions();
+        await this.getAcademicAreas();
         // this.capitalize();
         this.isLoading = false;
     },
 
     methods: {
 
+        getAcademicAreas: async function () {
+            let request = await axios.get(route('api.academicAreas.index'));
+            this.academicAreas = request.data
+            console.log(this.academicAreas);
+        },
+
+        mapAcademicPrograms(academicProgramsArray){
+           let mappedItems = academicProgramsArray.map(academicProgram => `${academicProgram.name}`)
+           return mappedItems.join(', ');
+        },
+
         handleSelectedMethod: function () {
             this[this.createOrEditDialog.method]();
         },
 
-        getAcademicProgramQuestions: async function () {
-            let request = await axios.get(route('api.academicProgramQuestions.index', {academicProgram:this.academicProgram.code}))
-            this.academicProgramQuestions = request.data;
-            console.log(this.academicProgram)
-            console.log(request.data);
-        },
-
-        editAcademicProgramQuestion: async function () {
+        editAcademicArea: async function () {
             //Verify request
-            this.editedAcademicProgramQuestion.academic_program_code = this.academicProgram.code;
 
-            if (this.editedAcademicProgramQuestion.hasEmptyProperties()) {
+            if (this.editedAcademicArea.hasEmptyProperties()) {
                 showSnackbar(this.snackbar, 'Debes diligenciar todos los campos obligatorios', 'red', 2000);
                 return;
             }
             //Recollect information
-            let data = this.editedAcademicProgramQuestion.toObjectRequest();
+            let data = this.editedAcademicArea.toObjectRequest();
 
             try {
-                let request = await axios.patch(route('api.academicProgramQuestions.update', {'academicProgramQuestion': this.editedAcademicProgramQuestion.id}), data);
+                let request = await axios.patch(route('api.academicAreas.update', {'academicArea': this.editedAcademicArea.id}), data);
                 this.createOrEditDialog.dialogStatus = false;
                 showSnackbar(this.snackbar, request.data.message, 'success');
-                await this.getAcademicProgramQuestions();
+                await this.getAcademicAreas();
                 //Clear role information
-                this.editedAcademicProgramQuestion = new AcademicProgramQuestion();
+                this.editedAcademicArea = new AcademicArea();
             } catch (e) {
                 showSnackbar(this.snackbar, prepareErrorText(e), 'alert');
             }
         },
 
-        confirmDeleteAcademicProgramQuestion: function (academicProgramQuestion) {
-            this.deletedAcademicProgramQuestionId = academicProgramQuestion.id;
-            this.deleteAcademicProgramQuestionDialog = true;
+        confirmDeleteAcademicArea: function (academicArea) {
+            this.deletedAcademicAreaId = academicArea.id;
+            this.deleteAcademicAreaDialog = true;
         },
 
-        deleteAcademicProgramQuestion: async function (academicProgramQuestion) {
+        deleteAcademicArea: async function (academicArea) {
             try {
-                let request = await axios.delete(route('api.academicProgramQuestions.destroy', {academicProgramQuestion: academicProgramQuestion}));
-                this.deleteAcademicProgramQuestionDialog = false;
+                let request = await axios.delete(route('api.academicAreas.destroy', {academicArea: academicArea}));
+                this.deleteAcademicAreaDialog = false;
                 showSnackbar(this.snackbar, request.data.message, 'success');
-                await this.getAcademicProgramQuestions();
+                await this.getAcademicAreas();
             } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'red', 7000);
             }
 
         },
 
-        setAcademicProgramQuestionDialogToCreateOrEdit(which, item = null) {
+        setAcademicAreaDialogToCreateOrEdit(which, item = null) {
             if (which === 'create') {
-                this.createOrEditDialog.method = 'createAcademicProgramQuestion';
-                this.createOrEditDialog.model = 'newAcademicProgramQuestion';
+                this.createOrEditDialog.method = 'createAcademicArea';
+                this.createOrEditDialog.model = 'newAcademicArea';
                 this.createOrEditDialog.dialogStatus = true;
             }
 
             if (which === 'edit') {
-                this.editedAcademicProgramQuestion = AcademicProgramQuestion.fromModel(item);
-                this.createOrEditDialog.method = 'editAcademicProgramQuestion';
-                this.createOrEditDialog.model = 'editedAcademicProgramQuestion';
+                this.editedAcademicArea = AcademicArea.fromModel(item);
+                console.log(this.editedAcademicArea);
+                this.createOrEditDialog.method = 'editAcademicArea';
+                this.createOrEditDialog.model = 'editedAcademicArea';
                 this.createOrEditDialog.dialogStatus = true;
             }
 
         },
-        createAcademicProgramQuestion: async function () {
+        createAcademicArea: async function () {
 
-            this.newAcademicProgramQuestion.academic_program_code = this.academicProgram.code;
-            console.log(this.newAcademicProgramQuestion);
-
-            if (this.newAcademicProgramQuestion.hasEmptyProperties()) {
+            if (this.newAcademicArea.hasEmptyProperties()) {
                 showSnackbar(this.snackbar, 'Debes diligenciar todos los campos obligatorios', 'red', 2000);
                 return;
             }
-
-            let data = this.newAcademicProgramQuestion.toObjectRequest();
+            let data = this.newAcademicArea.toObjectRequest();
             //Clear competence information
-            this.newAcademicProgramQuestion = new AcademicProgramQuestion();
+            this.newAcademicArea = new AcademicArea();
 
             try {
-                let request = await axios.post(route('api.academicProgramQuestions.store'), data);
+                let request = await axios.post(route('api.academicAreas.store'), data);
                 this.createOrEditDialog.dialogStatus = false;
                 showSnackbar(this.snackbar, request.data.message, 'success', 2000);
-                await this.getAcademicProgramQuestions();
+                await this.getAcademicAreas();
             } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'alert', 3000);
             }
         },
 
     },
-
-
 }
 </script>
 
