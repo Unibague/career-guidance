@@ -17,7 +17,34 @@
             <h3 class="black--text" style="text-align: left; margin-top: 75px; margin-bottom: 25px"> Programas de mayor interés </h3>
             <canvas id="graph"></canvas>
 
-
+            <v-dialog
+                v-model="academicAreaMessageDialog"
+                persistent
+                max-width="650px"
+            >
+                <v-card>
+                    <v-card-title style="justify-content: center">
+                        <span>
+                        </span>
+                        <h3>{{this.selectedAcademicAreaName}}</h3>
+                    </v-card-title>
+                    <v-card-text>
+                        <v-container style="text-align: center">
+                            <h2> {{this.selectedAcademicAreaMessage}}</h2>
+                        </v-container>
+                    </v-card-text>
+                    <v-card-actions style="justify-content: center">
+                        <v-btn
+                            color="primario"
+                            class="grey--text text--lighten-4"
+                            style="border-radius: 10px; padding: 10px 50px 10px 50px; align-self: center"
+                            @click="academicAreaMessageDialog = false"
+                        >
+                            Cerrar
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
 
 
         </v-container>
@@ -50,6 +77,7 @@ export default {
             identification: '',
             academicProgramsResults:[],
             academicAreasResults:[],
+            academicAreasInfo:[],
 
             //charts
             chart:'',
@@ -65,6 +93,9 @@ export default {
             //Dialogs
             basicInformationDialog: true,
             isLoading: true,
+            academicAreaMessageDialog: false,
+            selectedAcademicAreaName: '',
+            selectedAcademicAreaMessage: '',
         }
     },
 
@@ -94,6 +125,7 @@ export default {
         async getAcademicAreasResult(){
             let request = await axios.post(route('results.academicAreas'),{identification:this.user.identification});
             this.academicAreasResults = request.data;
+            this.academicAreasInfo = this.academicAreasResults.basicInfo
         },
 
         destroyChart(){
@@ -120,7 +152,7 @@ export default {
                             const elementIndex = elements[0].index;
                             const label = this.pieChart.data.labels[elementIndex];
                             const value = this.pieChart.data.datasets[0].data[elementIndex];
-                            this.showInfo(label, value);
+                            this.showAcademicAreaInfo(label, value);
                         }
                     }
                 },
@@ -214,6 +246,21 @@ export default {
                     }
                 },
             })
+        },
+
+        showAcademicAreaInfo(label,value){
+          console.log(label,value);
+
+          console.log(this.academicAreasInfo);
+
+          this.academicAreasInfo.forEach(academicArea =>{
+              if (label === academicArea.academic_area_name){
+                  this.selectedAcademicAreaName = label;
+                  this.selectedAcademicAreaMessage = academicArea.message
+              }
+          });
+
+          this.academicAreaMessageDialog = true;
         },
 
         showInfo(label, value) {

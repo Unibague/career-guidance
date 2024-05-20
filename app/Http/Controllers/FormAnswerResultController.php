@@ -71,7 +71,8 @@ class FormAnswerResultController extends Controller
         $identification = $request->input('identification');
 
         if($identification !== null){
-            $academicAreasResults = DB::table('external_users as eu')->select(['aa.name','far.academic_area_id','far.interest_percentage as value'])
+            $academicAreasResults = DB::table('external_users as eu')->select(['aa.name', 'aa.message',
+                'far.academic_area_id','far.interest_percentage as value'])
                 ->where('eu.identification','=',$identification)
                 ->join('form_answers as fa','eu.id','=','fa.user_id')
                 ->join('form_answer_areas_result as far','fa.id','=','far.form_answer_id')
@@ -79,11 +80,14 @@ class FormAnswerResultController extends Controller
 
             $values = [];
             $labels = [];
+            $academicAreasInfo = [];
             foreach ($academicAreasResults as $academicAreaResult){
                 $values [] = $academicAreaResult->value;
                 $labels [] = $academicAreaResult->name;
+                $academicAreasInfo [] = ['academic_area_name' =>  $academicAreaResult->name
+                    ,'message' => $academicAreaResult->message];
             }
-            $finalData =  ['results' => $values, 'labels' => $labels];
+            $finalData =  ['results' => $values, 'labels' => $labels, 'basicInfo' => $academicAreasInfo];
             return response()->json($finalData);
         }
     }
@@ -160,7 +164,8 @@ class FormAnswerResultController extends Controller
 
     public function showGraph(Request $request){
         $user = json_decode($request->input('user'));
-        return Inertia::render('Results/Index', ['user' => ['name' => $user->userName, 'identification' => $user->identification]]);
+        return Inertia::render('Results/Index', ['user' => ['name' => "ElEstebitan", 'identification' => 342349324932]]);
+//        return Inertia::render('Results/Index', ['user' => ['name' => $user->userName, 'identification' => $user->identification]]);
 
     }
 
