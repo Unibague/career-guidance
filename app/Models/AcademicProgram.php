@@ -16,6 +16,12 @@ class AcademicProgram extends Model
         return $this->hasMany(AcademicProgramQuestion::class, 'academic_program_code','code');
     }
 
+    public function academicArea(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(AcademicArea::class);
+    }
+
+
     public static function createOrUpdateFromArray($academicPrograms){
         $upsertData = [];
         foreach ($academicPrograms as $academicProgram) {

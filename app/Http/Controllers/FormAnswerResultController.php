@@ -67,6 +67,27 @@ class FormAnswerResultController extends Controller
 
     }
 
+    public function getAcademicAreasResult(Request $request){
+        $identification = $request->input('identification');
+
+        if($identification !== null){
+            $academicAreasResults = DB::table('external_users as eu')->select(['aa.name','far.academic_area_id','far.interest_percentage as value'])
+                ->where('eu.identification','=',$identification)
+                ->join('form_answers as fa','eu.id','=','fa.user_id')
+                ->join('form_answer_areas_result as far','fa.id','=','far.form_answer_id')
+                ->join('academic_areas as aa','far.academic_area_id','=','aa.id')->get();
+
+            $values = [];
+            $labels = [];
+            foreach ($academicAreasResults as $academicAreaResult){
+                $values [] = $academicAreaResult->value;
+                $labels [] = $academicAreaResult->name;
+            }
+            $finalData =  ['results' => $values, 'labels' => $labels];
+            return response()->json($finalData);
+        }
+    }
+
 
     public function downloadSpecificReport()
     {
@@ -108,15 +129,16 @@ class FormAnswerResultController extends Controller
 
         foreach ($formAnswers as $formAnswer){
             //First, get the attributes from the user
-            $rowData = [];
-
-            $formAnswerAsJson = (json_decode($formAnswer->answers, false, 512, JSON_THROW_ON_ERROR));
             $userInfo = DB::table('external_users')->where('id','=',$formAnswer->user_id)->first();
 
-            //First we insert the sex and age of every user
+            // Every answer is going to be stored in an array called $rowData
+            $rowData = [];
+            //First we insert the name, sex and age of every user
+            $rowData [] = $userInfo->name;
             $rowData [] = $userInfo->sex;
             $rowData [] = $userInfo->age;
 
+            $formAnswerAsJson = (json_decode($formAnswer->answers, false, 512, JSON_THROW_ON_ERROR));
             //Now we insert the results for every question in case the question exists in the form_answer
             foreach ($academicProgramsQuestionsArray as $question){
                 $result = Form::findFirstOccurrence($formAnswerAsJson, $question);
@@ -129,7 +151,10 @@ class FormAnswerResultController extends Controller
             $tableData[] = $rowData;
         }
 
-        return Excel::download(new ResultsViewExport($academicProgramsQuestionsArray, $tableData), 'Test_Vocacional.xlsx');
+        //Now that every answer was collected and correctly mapped, just format the AcademicProgramsQuestions as requested
+        $academicProgramsQuestionsArrayFormatted = Form::getFormQuestionsFormatted($form->questions);
+
+        return Excel::download(new ResultsViewExport($academicProgramsQuestionsArrayFormatted, $tableData), 'Test_Vocacional.xlsx');
     }
 
 

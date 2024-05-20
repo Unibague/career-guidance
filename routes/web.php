@@ -28,6 +28,23 @@ Route::get('/loggedUserLanding', function () {
     return Inertia::render('LoggedNewUser');
 })->name('newLoggedUser.landing');
 
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>> AcademicAreas routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
+Route::inertia('/academicAreas', 'AcademicAreas/Index')->middleware(['auth', 'isAdmin'])->name('academicAreas.index');
+Route::resource('api/academicAreas', \App\Http\Controllers\AcademicAreaController::class, [
+    'as' => 'api'
+]);
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>> AcademicAreas routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
+Route::post('/academicAreaPrograms/assign', [\App\Http\Controllers\AcademicAreaProgramController::class, 'assign'])->middleware(['auth', 'isAdmin'])
+    ->name('academicAreaPrograms.assign');
+
+
+Route::post('/academicAreaPrograms/delete', [\App\Http\Controllers\AcademicAreaProgramController::class, 'delete'])->middleware(['auth', 'isAdmin'])
+    ->name('academicAreaPrograms.delete');
+
+
+
+
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> AcademicPrograms routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
 Route::inertia('/academicPrograms', 'AcademicPrograms/Index')->middleware(['auth', 'isAdmin'])->name('academicPrograms.index');
 Route::resource('api/academicPrograms', \App\Http\Controllers\AcademicProgramController::class, [
@@ -63,8 +80,9 @@ Route::patch('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuesti
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Results routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
 Route::inertia('/results/report', 'Results/Report')->middleware(['auth', 'isAdmin'])->name('results.report');
-Route::post('/results/graph', [\App\Http\Controllers\FormAnswerResultController::class, 'showGraph'])->name('results.showGraph');
+Route::get('/results/graph', [\App\Http\Controllers\FormAnswerResultController::class, 'showGraph'])->name('results.showGraph');
 Route::post('results/academicPrograms',[ \App\Http\Controllers\FormAnswerResultController::class, 'index'])->name('results.academicPrograms');
+Route::post('results/academicAreas',[ \App\Http\Controllers\FormAnswerResultController::class, 'getAcademicAreasResult'])->name('results.academicAreas');
 Route::get('results/specificReport',[ \App\Http\Controllers\FormAnswerResultController::class, 'downloadSpecificReport'])->name('results.specificReport');
 Route::get('results/testSpecificReport',[ \App\Http\Controllers\FormAnswerResultController::class, 'testDownloadSpecificReport'])->name('results.testSpecificReport');
 

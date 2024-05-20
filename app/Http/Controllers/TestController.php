@@ -60,7 +60,7 @@ class TestController extends Controller
 
         $test = DB::table('forms')->first();
         return Inertia::render('Test/Show', ['test' => $test,
-            'user' => ['userName' => $data['userName'], 'identification' => $data['identification'], 'age' => $data['age'], 'sex' => $data['sex'], 'phone' => $data['phone']],
+            'user' => ['userName' => $data['userName'], 'identification' => $data['identification'], 'age' => $data['age'], 'sex' => $data['sex']],
             'canSend' => true]);
     }
 

@@ -35,7 +35,6 @@ export default {
             identification: '',
             sex:'',
             age:'',
-            phone:'',
             //Snackbars
             snackbar: {
                 text: "",
@@ -88,7 +87,7 @@ export default {
                 },*/
 
         async validateSubmit(){
-            if (!this.userName || !this.identification || !this.age || !this.sex || !this.phone) {
+            if (!this.userName || !this.identification || !this.age || !this.sex) {
                 showSnackbar(this.snackbar, 'Debes diligenciar todos los campos obligatorios', 'red', 2000);
                 return;
             }

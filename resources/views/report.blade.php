@@ -1,8 +1,9 @@
 <table>
     <thead>
     <tr>
-        <th>Sexo</th> <!-- You may need to add user information -->
-        <th>Edad</th> <!-- You may need to add user information -->
+        <th>Nombre</th>
+        <th>Sexo</th>
+        <th>Edad</th>
         @foreach ($questions as $question)
             <th>{{ $question }}</th>
         @endforeach

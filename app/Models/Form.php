@@ -39,13 +39,40 @@ class Form extends Model
     public static function getFormQuestions($formQuestions){
         $formQuestionsArray = [];
         $formQuestions = json_decode($formQuestions);
-        usort($formQuestions, function($a, $b)
+/*        usort($formQuestions, function($a, $b)
         {
             return strcmp($a->name, $b->name);
+        });*/
+        usort($formQuestions, function($a, $b)
+        {
+            return strcmp($a->program_code, $b->program_code);
         });
         foreach ($formQuestions as $formQuestion){
             $formQuestionsArray [] = $formQuestion->name;
          }
+        return $formQuestionsArray;
+    }
+
+    public static function getFormQuestionsFormatted($formQuestions){
+        $formQuestionsArray = [];
+        $formQuestions = json_decode($formQuestions);
+        usort($formQuestions, function($a, $b)
+        {
+            return strcmp($a->program_code, $b->program_code);
+        });
+        $lastProgramCode = "";
+        $index = 1;
+        foreach ($formQuestions as $formQuestion){
+            $currentProgramCode = $formQuestion->program_code;
+            if ($currentProgramCode !== $lastProgramCode){
+                $index = 1;
+                $lastProgramCode = $formQuestion->program_code;
+            }
+            else{
+                $index++;
+            }
+            $formQuestionsArray [] = "{$currentProgramCode}-$index. {$formQuestion->name}";
+        }
         return $formQuestionsArray;
     }
 

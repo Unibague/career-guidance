@@ -80,7 +80,6 @@ export default {
         AuthenticatedLayout,
         InertiaLink,
         Snackbar,
-
     },
     data: () => {
         return {
@@ -136,8 +135,6 @@ export default {
         },
 
     },
-
-
 }
 </script>
 

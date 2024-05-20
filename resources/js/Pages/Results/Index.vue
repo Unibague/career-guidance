@@ -5,29 +5,19 @@
 
         <v-container>
 
-            <h2 class="black--text pt-5" style="text-align: center; margin-bottom: 30px"> {{this.user.name}}, ¡este es tu resultado!:</h2>
+            <h2 class="black--text pt-5" style="text-align: center; margin-bottom: 10px"> {{this.user.name}}, ¡este es tu resultado!:</h2>
 
-            <canvas id="graph" style=""></canvas>
-            <!--Canvas para la gráfica-->
-<!--            <v-card>-->
-<!--                <v-card-text>-->
+            <h3 class="black--text pt-4" style="text-align: left; margin-bottom: 15px"> Clasificación por áreas de conocimiento:</h3>
 
-<!--                </v-card-text>-->
+            <div style="width: 50%; margin: 0 auto; position: relative">
+            <canvas id="pieChart"></canvas>
+            </div>
 
-<!--                <v-container style="position: relative; ">-->
 
-<!--                </v-container>-->
-<!--            </v-card>-->
+            <h3 class="black--text" style="text-align: left; margin-top: 75px; margin-bottom: 25px"> Programas de mayor interés </h3>
+            <canvas id="graph"></canvas>
 
-<!--
-            <v-btn @click="getGraph">
-                Crear
-            </v-btn>
 
-            <v-btn @click="destroyChart">
-                Borrar
-            </v-btn>
--->
 
 
         </v-container>
@@ -59,6 +49,12 @@ export default {
             userName: '',
             identification: '',
             academicProgramsResults:[],
+            academicAreasResults:[],
+
+            //charts
+            chart:'',
+            pieChart:'',
+
             //Snackbars
             snackbar: {
                 text: "",
@@ -79,6 +75,8 @@ export default {
 
 
     async created() {
+        await this.getAcademicAreasResult();
+        this.getPieChart();
         await this.getAcademicProgramsResult();
         this.getGraph();
         this.isLoading = false;
@@ -93,8 +91,40 @@ export default {
             console.log(this.academicProgramsResults);
         },
 
+        async getAcademicAreasResult(){
+            let request = await axios.post(route('results.academicAreas'),{identification:this.user.identification});
+            this.academicAreasResults = request.data;
+        },
+
         destroyChart(){
             this.chart.destroy();
+        },
+
+        getPieChart(){
+            let chart = document.getElementById("pieChart").getContext("2d");
+            this.pieChart = new Chart(chart,{
+                type:'pie',
+                data:{
+                    labels: this.academicAreasResults.labels,
+                    datasets: [{
+                        label: 'Grado de interés (%)',
+                        data: this.academicAreasResults.results,
+                        backgroundColor: ['#3498db', '#2ecc71', '#f1c40f', '#e67e22', '#9b59b6', '#00B0FF'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const elementIndex = elements[0].index;
+                            const label = this.pieChart.data.labels[elementIndex];
+                            const value = this.pieChart.data.datasets[0].data[elementIndex];
+                            this.showInfo(label, value);
+                        }
+                    }
+                },
+            })
         },
 
         getGraph(){
@@ -107,10 +137,9 @@ export default {
                     labels: this.academicProgramsResults.labels,
                     datasets: [
                         {data: this.academicProgramsResults.results,
-                        backgroundColor: ["#E91E63", "#2196F3", "#CDDC39", "#FF9800", '#3F51B5'],
-                        borderColor: ["#E91E63", "#2196F3", "#CDDC39", "#FF9800", '#3F51B5'],
-                        borderWidth: 2,
-                        borderDash: [5, 5],
+                        // backgroundColor: ["#E91E63", "#2196F3", "#CDDC39", "#FF9800", '#3F51B5'],
+                        backgroundColor: ["#dc143c", "#00bcd4", "#32cd32", "#ffbf00", '#6a5acd'],
+                        hoverOffset: 4,
                         label: `Nivel de interés`,
                         }
                     ]
@@ -185,6 +214,13 @@ export default {
                     }
                 },
             })
+        },
+
+        showInfo(label, value) {
+            // Display the text in the snackbar
+            this.snackbar.text = `Área: ${label}, Grado de interés: ${value}%`;
+            this.snackbar.type = 'info';
+            this.snackbar.status = true;
         },
 
 
