@@ -160,8 +160,7 @@ class FormAnswerResultController extends Controller
 
     public function showGraph(Request $request){
         $user = json_decode($request->input('user'));
-        return Inertia::render('Results/Index', ['user' => ['name' => "ElEstebitan", 'identification' => 342349324932]]);
-//        return Inertia::render('Results/Index', ['user' => ['name' => $user->userName, 'identification' => $user->identification]]);
+        return Inertia::render('Results/Index', ['user' => ['name' => $user->userName, 'identification' => $user->identification]]);
 
     }
 
