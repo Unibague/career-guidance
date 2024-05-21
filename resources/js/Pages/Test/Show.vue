@@ -24,7 +24,7 @@
                         ref="form"
                         lazy-validation
                         v-model="valid">
-                        <v-card v-for="question in test.questions" :key="question.id" class="mb-8">
+                        <v-card v-for="question in currentQuestions" :key="question.id" class="mb-8">
                             <v-card-text>
                                 <div class="text-h6 text-justify mb-5">
                                     {{ question.name }}
@@ -59,7 +59,7 @@
                     </v-form>
                 </v-col>
             </v-row>
-            <v-row justify="center" v-if="canSend">
+            <v-row justify="center" v-if="canSend && isLastPage">
                 <v-col cols="12" class="d-flex justify-center">
                     <v-btn color="primario"
                            large
@@ -68,8 +68,14 @@
                     >Enviar formulario
                     </v-btn>
                 </v-col>
-
             </v-row>
+
+            <v-row justify="center">
+                <v-col cols="12" class="d-flex justify-center">
+                    <v-pagination v-model="currentPage" :length="pageCount"></v-pagination>
+                </v-col>
+            </v-row>
+
 
         </v-container>
         <v-dialog
@@ -148,12 +154,35 @@ export default {
                 timeout: 2000,
             },
             isLoading: true,
+
+            currentPage: 1,
+            questionsPerPage: 10,
         }
     },
     props: {
         test: Object,
         user: Object,
         canSend: Boolean
+    },
+
+    computed:{
+        currentQuestions() {
+            const start = (this.currentPage - 1) * this.questionsPerPage;
+            const end = start + this.questionsPerPage;
+            return this.test.questions.slice(start, end);
+        },
+        pageCount() {
+            return Math.ceil(this.test.questions.length / this.questionsPerPage);
+        },
+        isLastPage() {
+            return this.currentPage === this.pageCount;
+        },
+    },
+
+    watch:{
+        currentPage(){
+            this.scrollToTop();
+        }
     },
 
     async created() {
@@ -163,6 +192,20 @@ export default {
     },
 
     methods: {
+
+        scrollToTop() {
+            const form = this.$refs.form;
+            if (form) {
+                form.$el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                window.scrollTo(0,0);
+            }
+
+            window.scrollTo(0,0);
+
+            console.log('perro hijueputaaaaa')
+        },
+
         redirect: function () {
             window.location.href = route('tests.index.view');
         },
