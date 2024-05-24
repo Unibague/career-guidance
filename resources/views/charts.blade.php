@@ -74,7 +74,7 @@
 <h3> Clasificación por áreas de conocimiento </h3>
 
 <div class="chart">
-    <img src="{{ $pieChart }}" alt="Pie Chart" style="margin-bottom: 50px">
+    <img src="{{ $pieChart }}" alt="Pie Chart" style="margin-bottom: 50px; width: 70%">
 </div>
 
 <h4 style="margin-bottom: 15px"> <strong> Descripción de las áreas de conocimiento: </strong></h4>
