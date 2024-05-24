@@ -135,31 +135,60 @@ export default {
 
         async downloadResults(){
 
-            const pieChart = document.getElementById('pieChart').toDataURL('image/png', 1.0);
-            const barChart = document.getElementById('barChart').toDataURL('image/png', 1.0);
-            const userName = this.user.name
-            const charts = {pieChart, barChart};
-            const data = {charts: charts, userName: userName}
+            this.destroyCharts();
+            // Re-render charts
+            await this.$nextTick();
+            this.getPieChart();
+            this.getBarChart();
 
-            let request = await axios.post(route('results.userReportPDF'),{data},
-                {responseType:'blob'}).then(response => {
-                    const url = window.URL.createObjectURL(new Blob([response.data]));
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.setAttribute('download','charts.pdf');
-                    document.body.appendChild(link);
-                    link.click();
-            }).catch(error => {
-                console.log('Error generando el PDF', error);
-            })
+            setTimeout(async () => {
+                // Generate PDF
+                // ... your existing code for PDF generation ...
 
-
+                // If using async PDF generation, ensure proper handling of asynchronous operations
+                try {
+                    await this.generatePDF();
+                } catch (error) {
+                    console.error('Error generating PDF:', error);
+                }
+            }, 900); // Adjust delay as needed
 
         },
 
-        destroyChart(){
-            this.chart.destroy();
+       async generatePDF(){
+           const pieChart = document.getElementById('pieChart').toDataURL('image/png', 1.0);
+           const barChart = document.getElementById('barChart').toDataURL('image/png', 1.0);
+           const userName = this.user.name
+           const charts = {pieChart, barChart};
+           const data = {charts: charts, userName: userName}
+
+           let request = await axios.post(route('results.userReportPDF'),{data},
+               {responseType:'blob'}).then(response => {
+               const url = window.URL.createObjectURL(new Blob([response.data]));
+               const link = document.createElement('a');
+               link.href = url;
+               link.setAttribute('download','charts.pdf');
+               document.body.appendChild(link);
+               link.click();
+           }).catch(error => {
+               console.log('Error generando el PDF', error);
+           })
         },
+
+        destroyCharts() {
+            // Destroy pie chart
+            if (this.pieChart) {
+                this.pieChart.destroy();
+                this.pieChart = null;
+            }
+
+            // Destroy bar chart
+            if (this.barChart) {
+                this.barChart.destroy();
+                this.barChart = null;
+            }
+        },
+
 
         getPieChart(){
             let chart = document.getElementById("pieChart").getContext("2d");
@@ -207,7 +236,7 @@ export default {
 
             let chart = document.getElementById("barChart").getContext("2d");
 
-            this.chart = new Chart(chart, {
+            this.barChart = new Chart(chart, {
                 type:"bar",
                 data:{
                     labels: this.academicProgramsResults.labels,
