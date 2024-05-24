@@ -13,7 +13,7 @@
 
             <h3 class="black--text pt-4" style="text-align: left; margin-bottom: 15px"> Clasificación por áreas de conocimiento:</h3>
 
-            <div style="width: 50%; margin: 0 auto; position: relative">
+            <div style="width: 60%; margin: 0 auto; position: relative">
             <canvas id="pieChart"></canvas>
             </div>
 
@@ -116,6 +116,10 @@ export default {
         await this.getAcademicProgramsResult();
         this.getBarChart();
         this.isLoading = false;
+        // Add event listener for orientation change
+        window.addEventListener("orientationchange", () => {
+            window.location.reload();
+        });
 
     },
 
@@ -135,12 +139,6 @@ export default {
 
         async downloadResults(){
 
-            this.destroyCharts();
-            // Re-render charts
-            await this.$nextTick();
-            this.getPieChart();
-            this.getBarChart();
-
             setTimeout(async () => {
                 // Generate PDF
                 // ... your existing code for PDF generation ...
@@ -151,7 +149,7 @@ export default {
                 } catch (error) {
                     console.error('Error generating PDF:', error);
                 }
-            }, 900); // Adjust delay as needed
+            }, 200); // Adjust delay as needed
 
         },
 
