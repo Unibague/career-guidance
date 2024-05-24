@@ -7,6 +7,10 @@
 
             <h2 class="black--text pt-5" style="text-align: center; margin-bottom: 10px"> {{this.user.name}}, ¡este es tu resultado!:</h2>
 
+            <div class="d-flex flex-column align-end mb-7">
+                <v-btn color="primario" class="grey--text text--lighten-4" @click="downloadResults()"> Descargar mis resultados </v-btn>
+            </div>
+
             <h3 class="black--text pt-4" style="text-align: left; margin-bottom: 15px"> Clasificación por áreas de conocimiento:</h3>
 
             <div style="width: 50%; margin: 0 auto; position: relative">
@@ -15,7 +19,7 @@
 
 
             <h3 class="black--text" style="text-align: left; margin-top: 75px; margin-bottom: 25px"> Programas de mayor interés </h3>
-            <canvas id="graph"></canvas>
+            <canvas id="barChart"></canvas>
 
             <v-dialog
                 v-model="academicAreaMessageDialog"
@@ -58,8 +62,9 @@ import {prepareErrorText, showSnackbar} from "@/HelperFunctions"
 import ConfirmDialog from "@/Components/ConfirmDialog";
 import Snackbar from "@/Components/Snackbar";
 import Chart from "chart.js/auto";
+import ChartDataLabels from "chartjs-plugin-datalabels"
+Chart.register(ChartDataLabels);
 import GeneralLayout from "@/Layouts/GeneralLayout.vue";
-
 
 export default {
     components: {
@@ -80,7 +85,7 @@ export default {
             academicAreasInfo:[],
 
             //charts
-            chart:'',
+            barChart:'',
             pieChart:'',
 
             //Snackbars
@@ -109,7 +114,7 @@ export default {
         await this.getAcademicAreasResult();
         this.getPieChart();
         await this.getAcademicProgramsResult();
-        this.getGraph();
+        this.getBarChart();
         this.isLoading = false;
 
     },
@@ -128,12 +133,37 @@ export default {
             this.academicAreasInfo = this.academicAreasResults.basicInfo
         },
 
+        async downloadResults(){
+
+            const pieChart = document.getElementById('pieChart').toDataURL('image/png', 1.0);
+            const barChart = document.getElementById('barChart').toDataURL('image/png', 1.0);
+            const userName = this.user.name
+            const charts = {pieChart, barChart};
+            const data = {charts: charts, userName: userName}
+
+            let request = await axios.post(route('results.userReportPDF'),{data},
+                {responseType:'blob'}).then(response => {
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download','charts.pdf');
+                    document.body.appendChild(link);
+                    link.click();
+            }).catch(error => {
+                console.log('Error generando el PDF', error);
+            })
+
+
+
+        },
+
         destroyChart(){
             this.chart.destroy();
         },
 
         getPieChart(){
             let chart = document.getElementById("pieChart").getContext("2d");
+            Chart.register(ChartDataLabels);
             this.pieChart = new Chart(chart,{
                 type:'pie',
                 data:{
@@ -147,6 +177,20 @@ export default {
                 },
                 options: {
                     responsive: true,
+                    plugins: {
+                        datalabels: {
+                            color: '#fff',
+                            display: true,
+                            formatter: (value) => {
+                                value = `${value}%`
+                                return value;
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 19
+                            }
+                        }
+                    },
                     onClick: (event, elements) => {
                         if (elements.length > 0) {
                             const elementIndex = elements[0].index;
@@ -159,11 +203,11 @@ export default {
             })
         },
 
-        getGraph(){
+        getBarChart(){
 
-            let graph = document.getElementById("graph").getContext("2d");
+            let chart = document.getElementById("barChart").getContext("2d");
 
-            this.chart = new Chart(graph, {
+            this.chart = new Chart(chart, {
                 type:"bar",
                 data:{
                     labels: this.academicProgramsResults.labels,
@@ -178,9 +222,17 @@ export default {
                 },
                 options: {
                     plugins: {
-                        filler: {
-                            propagate: false
-                        },
+                        datalabels: {
+                            color: '#fff',
+                            display: true,
+                            formatter: (value) => {
+                                return value;
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 19
+                            }
+                        }
                     },
                     layout:{
                         padding:{
@@ -249,10 +301,6 @@ export default {
         },
 
         showAcademicAreaInfo(label,value){
-          console.log(label,value);
-
-          console.log(this.academicAreasInfo);
-
           this.academicAreasInfo.forEach(academicArea =>{
               if (label === academicArea.academic_area_name){
                   this.selectedAcademicAreaName = label;
@@ -262,15 +310,6 @@ export default {
 
           this.academicAreaMessageDialog = true;
         },
-
-        showInfo(label, value) {
-            // Display the text in the snackbar
-            this.snackbar.text = `Área: ${label}, Grado de interés: ${value}%`;
-            this.snackbar.type = 'info';
-            this.snackbar.status = true;
-        },
-
-
     },
 }
 </script>
