@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Exports\ResultsExport;
 use App\Exports\ResultsViewExport;
+use App\Models\AcademicArea;
 use App\Models\Form;
 use App\Models\FormAnswer;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -121,6 +123,24 @@ class FormAnswerResultController extends Controller
         return Excel::download(new ResultsExport($finalData, $headers), 'Test_Vocacional.xlsx');
     }
 
+    public function generateUserResultsPDF(Request $request){
+
+        $academicAreas = AcademicArea::all();
+        $data = $request->input('data');
+        $userName = $data['userName'];
+        $charts = $data['charts'];
+
+        $pieChart = $charts['pieChart'];
+        $barChart = $charts['barChart'];
+
+        $pdf = Pdf::loadView('charts', compact('pieChart', 'barChart', 'academicAreas', 'userName'));
+        $pdf->setPaper('A4', 'portrait')->setWarnings(false);
+
+        return $pdf->download('resultado.pdf');
+
+
+    }
+
     public function testDownloadSpecificReport()
     {
         //First get the headers (the questions) of the specific form.
@@ -164,7 +184,7 @@ class FormAnswerResultController extends Controller
 
     public function showGraph(Request $request){
         $user = json_decode($request->input('user'));
-//        return Inertia::render('Results/Index', ['user' => ['name' => "ElEstebitan", 'identification' => 45435]]);
+//        return Inertia::render('Results/Index', ['user' => ['name' => "Prueba", 'identification' => 45435]]);
         return Inertia::render('Results/Index', ['user' => ['name' => $user->userName, 'identification' => $user->identification]]);
 
     }
