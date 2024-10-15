@@ -25,7 +25,13 @@ class FormAnswer extends Model
 
         $academicAreasResult = self::getAcademicAreasResult($academicProgramsResult);
 
-        User::createExternalUser($userInfo['userName'], $userInfo['identification'], $userInfo['age'], $userInfo['sex']);
+        User::createExternalUser($userInfo['userName'],
+            $userInfo['identification'],
+            $userInfo['age'],
+            $userInfo['sex'],
+            $userInfo['email'],
+            $userInfo['phone']);
+
         $user = DB::table('external_users')->where('identification','=',$userInfo['identification'])->first();
 
         //And then upsert the data in form_answers table

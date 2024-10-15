@@ -161,6 +161,8 @@ class FormAnswerResultController extends Controller
             $rowData [] = $userInfo->name;
             $rowData [] = $userInfo->sex;
             $rowData [] = $userInfo->age;
+            $rowData [] = $userInfo->email;
+            $rowData [] = $userInfo->phone;
 
             $formAnswerAsJson = (json_decode($formAnswer->answers, false, 512, JSON_THROW_ON_ERROR));
             //Now we insert the results for every question in case the question exists in the form_answer

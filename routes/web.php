@@ -38,12 +38,8 @@ Route::resource('api/academicAreas', \App\Http\Controllers\AcademicAreaControlle
 Route::post('/academicAreaPrograms/assign', [\App\Http\Controllers\AcademicAreaProgramController::class, 'assign'])->middleware(['auth', 'isAdmin'])
     ->name('academicAreaPrograms.assign');
 
-
 Route::post('/academicAreaPrograms/delete', [\App\Http\Controllers\AcademicAreaProgramController::class, 'delete'])->middleware(['auth', 'isAdmin'])
     ->name('academicAreaPrograms.delete');
-
-
-
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> AcademicPrograms routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
 Route::inertia('/academicPrograms', 'AcademicPrograms/Index')->middleware(['auth', 'isAdmin'])->name('academicPrograms.index');
@@ -58,7 +54,6 @@ Route::post('/api/academicPrograms/sync', [\App\Http\Controllers\AcademicProgram
 Route::resource('api/academicProgramQuestions', \App\Http\Controllers\AcademicProgramQuestionsController::class, [
     'as' => 'api'
 ]);
-
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Forms routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
 Route::inertia('/forms', 'Forms/Index')->middleware(['auth', 'isAdmin'])->name('forms.index.view');

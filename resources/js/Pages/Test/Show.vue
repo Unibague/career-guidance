@@ -104,14 +104,6 @@
                             Continuar
                         </v-btn>
                     </form>
-
-<!--                    <v-btn
-                        color="green darken-1"
-                        text
-                        @click="redirect"
-                    >
-                        Aceptar
-                    </v-btn>-->
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -200,10 +192,7 @@ export default {
             } else {
                 window.scrollTo(0,0);
             }
-
             window.scrollTo(0,0);
-
-            console.log('perro hijueputaaaaa')
         },
 
         redirect: function () {
