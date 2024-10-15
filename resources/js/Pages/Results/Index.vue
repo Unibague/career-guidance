@@ -17,7 +17,6 @@
             <canvas id="pieChart"></canvas>
             </div>
 
-
             <h3 class="black--text" style="text-align: left; margin-top: 75px; margin-bottom: 25px"> Programas de mayor interés </h3>
             <canvas id="barChart"></canvas>
 

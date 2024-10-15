@@ -4,6 +4,8 @@
         <th>Nombre</th>
         <th>Sexo</th>
         <th>Edad</th>
+        <th>Correo Electrónico</th>
+        <th>Celular</th>
         @foreach ($questions as $question)
             <th>{{ $question }}</th>
         @endforeach

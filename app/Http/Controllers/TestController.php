@@ -44,7 +44,6 @@ class TestController extends Controller
     {
         $form = Form::findOrFail($request->input('form_id'));
         $userInfo = $request->input('userInfo');
-
         FormAnswer::createFormFromRequest($request, $form, $userInfo);
         return response()->json(['messages' => 'Formulario diligenciado exitosamente. Serás redirigido a la página de inicio']);
     }
@@ -57,10 +56,10 @@ class TestController extends Controller
     public function startTest(Request $request)
     {
         $data = $request->all();
-
         $test = DB::table('forms')->first();
         return Inertia::render('Test/Show', ['test' => $test,
-            'user' => ['userName' => $data['userName'], 'identification' => $data['identification'], 'age' => $data['age'], 'sex' => $data['sex']],
+            'user' => ['userName' => $data['userName'], 'identification' => $data['identification'], 'age' => $data['age'], 'sex' => $data['sex'],
+                'email' => $data['email'], 'phone' => $data['phone']],
             'canSend' => true]);
     }
 

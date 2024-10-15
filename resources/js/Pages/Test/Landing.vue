@@ -84,6 +84,24 @@
                                 v-model="age"
                             ></v-text-field>
                         </v-col>
+                        <v-col cols="6">
+                            <v-text-field
+                                label="Correo electrónico"
+                                required
+                                :rules="validateEmail"
+                                placeholder="correo@dominio.com"
+                                v-model="email"
+                                type="email"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="6">
+                            <v-text-field
+                                label="Celular"
+                                :rules="[validateIdentification]"
+                                required
+                                v-model="phone"
+                            ></v-text-field>
+                        </v-col>
                     </v-row>
                 </v-container>
             </v-card-text>
@@ -93,6 +111,8 @@
                     <input type="hidden" name="identification" :value="identification">
                     <input type="hidden" name="age" :value="age">
                     <input type="hidden" name="sex" :value="sex">
+                    <input type="hidden" name="email" :value="email">
+                    <input type="hidden" name="phone" :value="phone">
                     <v-btn
                         type="submit"
                         color="primario"
@@ -132,6 +152,8 @@ export default {
             identification: '',
             sex:'',
             age:'',
+            email:'',
+            phone:'',
             //Snackbars
             snackbar: {
                 text: "",
@@ -144,6 +166,9 @@ export default {
                 v => !!v || "Campo requerido",
                 v => ( v && v >= 1 ) || "Debe ser un  valor mayor a 1",
                 v => ( v && v <= 99 ) || "Debe ser un valor menor que 100",
+            ],
+            validateEmail:[
+                v => /.+@.+/.test(v) || 'Formato incorrecto'
             ],
             //Dialogs
             isLoading: true,
@@ -172,13 +197,12 @@ export default {
         validateIdentification(value) {
             const numbersRegex = /^[0-9]+$/;
             if (!value.match(numbersRegex)) {
-                return 'No escribas letras,comas,espacios o puntos.';
+                return 'No escribas letras, comas, espacios o puntos.';
             }
             return true;
         },
-
         async validateSubmit(){
-            if (!this.userName || !this.identification || !this.age || !this.sex) {
+            if (!this.userName || !this.identification || !this.age || !this.sex || !this.email || !this.phone) {
                 showSnackbar(this.snackbar, 'Debes diligenciar todos los campos obligatorios', 'red', 2000);
                 return;
             }
@@ -194,7 +218,7 @@ export default {
                 });
                 console.log(formDataJson);
                 // Now formDataJson contains all the form data
-                let request = await axios.post(route('tests.validateInfo', formDataJson) )
+                await axios.post(route('tests.validateInfo', formDataJson) )
                 form.submit();
             } catch (e){
                 let firstError = Object.values(e.response.data.errors)[0][0]
