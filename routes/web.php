@@ -75,7 +75,7 @@ Route::patch('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuesti
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Results routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
 Route::inertia('/results/report', 'Results/Report')->middleware(['auth', 'isAdmin'])->name('results.report');
-Route::post('/results/graph', [\App\Http\Controllers\FormAnswerResultController::class, 'showGraph'])->name('results.showGraph');
+Route::get('/results/graph', [\App\Http\Controllers\FormAnswerResultController::class, 'showGraph'])->name('results.showGraph');
 Route::post('results/academicPrograms',[ \App\Http\Controllers\FormAnswerResultController::class, 'index'])->name('results.academicPrograms');
 Route::post('results/academicAreas',[ \App\Http\Controllers\FormAnswerResultController::class, 'getAcademicAreasResult'])->name('results.academicAreas');
 Route::get('results/specificReport',[ \App\Http\Controllers\FormAnswerResultController::class, 'downloadSpecificReport'])->name('results.specificReport');
