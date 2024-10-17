@@ -138,7 +138,6 @@ class FormAnswerResultController extends Controller
 
         return $pdf->download('resultado.pdf');
 
-
     }
 
     public function testDownloadSpecificReport()
