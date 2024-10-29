@@ -5,19 +5,24 @@
 
         <v-container>
 
-            <h2 class="black--text pt-5" style="text-align: center; margin-bottom: 10px"> {{this.user.name}}, ¡este es tu resultado!:</h2>
+            <h2 class="black--text pt-5" style="text-align: center; margin-bottom: 10px"> {{ this.user.name }}, ¡este es
+                tu resultado!:</h2>
 
             <div class="d-flex flex-column align-end mb-7">
-                <v-btn color="primario" class="grey--text text--lighten-4" @click="downloadResults()"> Descargar mis resultados </v-btn>
+                <v-btn color="primario" class="grey--text text--lighten-4" @click="downloadResults()"> Descargar mis
+                    resultados
+                </v-btn>
             </div>
 
-            <h3 class="black--text pt-4" style="text-align: left; margin-bottom: 15px"> Clasificación por áreas de conocimiento:</h3>
+            <h3 class="black--text pt-4" style="text-align: left; margin-bottom: 15px"> Clasificación por áreas de
+                conocimiento:</h3>
 
             <div style="width: 60%; margin: 0 auto; position: relative">
-            <canvas id="pieChart"></canvas>
+                <canvas id="pieChart"></canvas>
             </div>
 
-            <h3 class="black--text" style="text-align: left; margin-top: 75px; margin-bottom: 25px"> Programas de mayor interés </h3>
+            <h3 class="black--text" style="text-align: left; margin-top: 75px; margin-bottom: 25px"> Programas de mayor
+                interés </h3>
             <canvas id="barChart"></canvas>
 
             <v-dialog
@@ -29,11 +34,11 @@
                     <v-card-title style="justify-content: center">
                         <span>
                         </span>
-                        <h3>{{this.selectedAcademicAreaName}}</h3>
+                        <h3>{{ this.selectedAcademicAreaName }}</h3>
                     </v-card-title>
                     <v-card-text>
                         <v-container style="text-align: center">
-                            <h2> {{this.selectedAcademicAreaMessage}}</h2>
+                            <h2> {{ this.selectedAcademicAreaMessage }}</h2>
                         </v-container>
                     </v-card-text>
                     <v-card-actions style="justify-content: center">
@@ -62,6 +67,7 @@ import ConfirmDialog from "@/Components/ConfirmDialog";
 import Snackbar from "@/Components/Snackbar";
 import Chart from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels"
+
 Chart.register(ChartDataLabels);
 import GeneralLayout from "@/Layouts/GeneralLayout.vue";
 
@@ -79,13 +85,13 @@ export default {
             search: '',
             userName: '',
             identification: '',
-            academicProgramsResults:[],
-            academicAreasResults:[],
-            academicAreasInfo:[],
+            academicProgramsResults: [],
+            academicAreasResults: [],
+            academicAreasInfo: [],
 
             //charts
-            barChart:'',
-            pieChart:'',
+            barChart: '',
+            pieChart: '',
 
             //Snackbars
             snackbar: {
@@ -124,75 +130,113 @@ export default {
 
     methods: {
 
-        async getAcademicProgramsResult(){
-            let request = await axios.post(route('results.academicPrograms'),{identification:this.user.identification});
+        async getAcademicProgramsResult() {
+            let request = await axios.post(route('results.academicPrograms'), {identification: this.user.identification});
             this.academicProgramsResults = request.data;
             console.log(this.academicProgramsResults);
         },
 
-        async getAcademicAreasResult(){
-            let request = await axios.post(route('results.academicAreas'),{identification:this.user.identification});
+        async getAcademicAreasResult() {
+            let request = await axios.post(route('results.academicAreas'), {identification: this.user.identification});
             this.academicAreasResults = request.data;
+            console.log(this.academicAreasResults);
             this.academicAreasInfo = this.academicAreasResults.basicInfo
         },
 
-        async downloadResults(){
+        async downloadPDF(){
+
+            const userName = this.user.name
+
+            var winName='MyWindow';
+            var winURL= route('results.generateUserReportPDF');
+            var windowOption='resizable=yes,height=600,width=800,location=0,menubar=0,scrollbars=1';
+            var params = { _token: this.token,
+                userName: userName,
+                pieChartLabels: JSON.stringify(this.academicAreasResults.labels),
+                pieChartResults: JSON.stringify(this.academicAreasResults.results),
+                barChartLabels: JSON.stringify(this.academicProgramsResults.labels),
+                barChartResults: JSON.stringify(this.academicProgramsResults.results),
+            };
+
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", winURL);
+            form.setAttribute("target",winName);
+            for (var i in params) {
+                if (params.hasOwnProperty(i)) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = i;
+                    input.value = params[i];
+                    form.appendChild(input);
+                }
+            }
+            document.body.appendChild(form);
+            window.open('', winName, windowOption);
+            form.target = winName;
+            form.submit();
+            document.body.removeChild(form);
+
+
+
+
+
+            // const userName = this.user.name
+            // const data = { userName: userName}
+            // await axios.post(route('results.generateUserReportPDF'), {data},
+            //     {responseType: 'blob'}).then(response => {
+            //     const url = window.URL.createObjectURL(new Blob([response.data]));
+            //     const link = document.createElement('a');
+            //     link.href = url;
+            //     link.setAttribute('download', 'Resultados_Test_Vocacional.pdf');
+            //     document.body.appendChild(link);
+            //     link.click();
+            // }).catch(error => {
+            //     console.log('Error generando el PDF', error);
+            // })
+        },
+
+        async downloadResults() {
 
             setTimeout(async () => {
                 // Generate PDF
                 // ... your existing code for PDF generation ...
-
                 // If using async PDF generation, ensure proper handling of asynchronous operations
                 try {
                     await this.generatePDF();
                 } catch (error) {
                     console.error('Error generating PDF:', error);
                 }
-            }, 200); // Adjust delay as needed
+            }, 50); // Adjust delay as needed
 
         },
 
-       async generatePDF(){
-           const pieChart = document.getElementById('pieChart').toDataURL('image/png', 1.0);
-           const barChart = document.getElementById('barChart').toDataURL('image/png', 1.0);
-           const userName = this.user.name
-           const charts = {pieChart, barChart};
-           const data = {charts: charts, userName: userName}
+        async generatePDF() {
+            const pieChart = document.getElementById('pieChart').toDataURL('image/png', 1.0);
+            const barChart = document.getElementById('barChart').toDataURL('image/png', 1.0);
+            const userName = this.user.name
+            const charts = {pieChart, barChart};
+            const data = {charts: charts, userName: userName}
 
-           let request = await axios.post(route('results.userReportPDF'),{data},
-               {responseType:'blob'}).then(response => {
-               const url = window.URL.createObjectURL(new Blob([response.data]));
-               const link = document.createElement('a');
-               link.href = url;
-               link.setAttribute('download','charts.pdf');
-               document.body.appendChild(link);
-               link.click();
-           }).catch(error => {
-               console.log('Error generando el PDF', error);
-           })
+            await axios.post(route('results.userReportPDF'), {data},
+                {responseType: 'blob'}).then(response => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'Resultados_Test_Vocacional.pdf');
+                document.body.appendChild(link);
+                link.click();
+            }).catch(error => {
+                console.log('Error generando el PDF', error);
+            })
         },
 
-        destroyCharts() {
-            // Destroy pie chart
-            if (this.pieChart) {
-                this.pieChart.destroy();
-                this.pieChart = null;
-            }
-
-            // Destroy bar chart
-            if (this.barChart) {
-                this.barChart.destroy();
-                this.barChart = null;
-            }
-        },
-
-
-        getPieChart(){
+        getPieChart() {
             let chart = document.getElementById("pieChart").getContext("2d");
             Chart.register(ChartDataLabels);
-            this.pieChart = new Chart(chart,{
-                type:'pie',
-                data:{
+            this.pieChart = new Chart(chart, {
+                type: 'pie',
+                data: {
                     labels: this.academicAreasResults.labels,
                     datasets: [{
                         label: 'Grado de interés (%)',
@@ -229,20 +273,21 @@ export default {
             })
         },
 
-        getBarChart(){
+        getBarChart() {
 
             let chart = document.getElementById("barChart").getContext("2d");
 
             this.barChart = new Chart(chart, {
-                type:"bar",
-                data:{
+                type: "bar",
+                data: {
                     labels: this.academicProgramsResults.labels,
                     datasets: [
-                        {data: this.academicProgramsResults.results,
-                        // backgroundColor: ["#E91E63", "#2196F3", "#CDDC39", "#FF9800", '#3F51B5'],
-                        backgroundColor: ["#dc143c", "#00bcd4", "#32cd32", "#ffbf00", '#6a5acd'],
-                        hoverOffset: 4,
-                        label: `Nivel de interés`,
+                        {
+                            data: this.academicProgramsResults.results,
+                            // backgroundColor: ["#E91E63", "#2196F3", "#CDDC39", "#FF9800", '#3F51B5'],
+                            backgroundColor: ["#dc143c", "#00bcd4", "#32cd32", "#ffbf00", '#6a5acd'],
+                            hoverOffset: 4,
+                            label: `Nivel de interés`,
                         }
                     ]
                 },
@@ -260,8 +305,8 @@ export default {
                             }
                         }
                     },
-                    layout:{
-                        padding:{
+                    layout: {
+                        padding: {
                             left: 0,
                             right: 0,
                             top: 0,
@@ -270,9 +315,6 @@ export default {
                     },
                     legend: {
                         display: true,
-                        /*   labels:{
-                               padding:20
-                           },*/
                         position: "bottom"
                     },
                     responsive: true,
@@ -299,13 +341,11 @@ export default {
                                         lineHeight: 1.2,
                                     },
                                 },
-
                             }
                         ,
                         y:
                             {
                                 display: true,
-
                                 title: {
                                     display: true,
                                     text: 'Nivel de interés',
@@ -316,9 +356,8 @@ export default {
                                         lineHeight: 1.2,
                                     },
                                 },
-
-                                ticks:{
-                                    callback: (value, index, values) => (index == (values.length-1)) ? undefined : value,
+                                ticks: {
+                                    callback: (value, index, values) => (index == (values.length - 1)) ? undefined : value,
                                 },
                             }
                     }
@@ -326,15 +365,15 @@ export default {
             })
         },
 
-        showAcademicAreaInfo(label,value){
-          this.academicAreasInfo.forEach(academicArea =>{
-              if (label === academicArea.academic_area_name){
-                  this.selectedAcademicAreaName = label;
-                  this.selectedAcademicAreaMessage = academicArea.message
-              }
-          });
+        showAcademicAreaInfo(label, value) {
+            this.academicAreasInfo.forEach(academicArea => {
+                if (label === academicArea.academic_area_name) {
+                    this.selectedAcademicAreaName = label;
+                    this.selectedAcademicAreaMessage = academicArea.message
+                }
+            });
 
-          this.academicAreaMessageDialog = true;
+            this.academicAreaMessageDialog = true;
         },
     },
 }

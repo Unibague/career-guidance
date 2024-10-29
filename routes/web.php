@@ -81,6 +81,7 @@ Route::post('results/academicAreas',[ \App\Http\Controllers\FormAnswerResultCont
 Route::get('results/specificReport',[ \App\Http\Controllers\FormAnswerResultController::class, 'downloadSpecificReport'])->name('results.specificReport');
 Route::get('results/testSpecificReport',[ \App\Http\Controllers\FormAnswerResultController::class, 'testDownloadSpecificReport'])->name('results.testSpecificReport');
 Route::post('results/generatePDF',[ \App\Http\Controllers\FormAnswerResultController::class, 'generateUserResultsPDF'])->name('results.userReportPDF');
+Route::post('results/generateReportPDF',[ \App\Http\Controllers\FormAnswerResultController::class, 'generateUserReportPDF'])->name('results.generateUserReportPDF');
 
 
 

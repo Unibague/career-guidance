@@ -140,6 +140,149 @@ class FormAnswerResultController extends Controller
 
     }
 
+
+    public function generateUserReportPDF(Request $request)
+    {
+        $userName = $request->input('userName');
+        $academicAreas = AcademicArea::all();
+        $pieChartLabels = $request->input('pieChartLabels');
+        $pieChartResults = $request->input('pieChartResults');
+
+
+
+        // Decode the JSON strings
+        $labels = json_decode($pieChartLabels);
+        $results = json_decode($pieChartResults);
+
+        $barChartLabels = json_decode($request->input('barChartLabels'));
+        $barChartResults = json_decode($request->input('barChartResults'));
+
+
+        $pieChartFormattedResults = array_map(function($value) {
+            // Convert string to float
+            $numValue = floatval($value);
+        // Check if it's a whole number
+            if (floor($numValue) == $numValue) {
+                return number_format($numValue, 0, '.', ''); // No decimal places
+            } else {
+                return number_format($numValue, 2, '.', ''); // Two decimal places
+            }
+        }, $results);
+
+        // Construct the chart configuration array
+        $pieChartConfig = [
+            'type' => 'pie',
+            'data' => [
+                'labels' => $labels,
+                'datasets' => [[
+                    'label' => 'Grado de interés (%)',
+                    'backgroundColor' => ['#3498db', '#2ecc71', '#f1c40f', '#e67e22', '#9b59b6', '#00B0FF'],
+                    'data' => $pieChartFormattedResults,
+                ]],
+            ],
+            'options' => [
+                'plugins' => [
+                    'datalabels' => [
+                        'display' => true,
+                        'color' => '#fff',
+                        'font' => [
+                            'weight' => 'bold',
+                            'size' => 17,
+                        ],
+                        'formatter' => function($value) {
+                            return $value . '%';
+                        },
+                    ],
+                ],
+            ],
+        ];
+
+
+// Format the bar chart configuration
+        $barChartConfig = [
+            'type' => 'bar',
+            'data' => [
+                'labels' => $barChartLabels,
+                'datasets' => [[
+                    'label' => 'Nivel de interés',
+                    'data' => $barChartResults,
+                    'backgroundColor' => ['#dc143c', '#00bcd4', '#32cd32', '#ffbf00', '#6a5acd'],
+                ]],
+            ],
+            'options' => [
+                'plugins' => [
+                    'datalabels' => [
+                        'display' => true,
+                        'color' => '#fff',
+                        'font' => [
+                            'weight' => 'bold',
+                            'size' => 17,
+                        ],
+                        'anchor' => 'end',
+                        'align' => 'start',
+                        'offset' => 0,
+                        'clip' => false,
+                    ],
+                ],
+                'legend' => [
+                    'display' => true,
+                    'position' => 'bottom',
+                ],
+                'scales' => [
+                    'x' => [
+                        'display' => true,
+                        'title' => [
+                            'display' => true,
+                            'text' => 'Programa académico',
+                            'color' => 'black',
+                            'font' => [
+                                'size' => 15,
+                                'weight' => 'bold',
+                            ],
+                        ],
+                    ],
+                    'y' => [
+                        'display' => true,
+                        'ticks' => [
+                            'min' => 0, // Set the minimum value to 0 explicitly
+                            'stepSize' => 1, // Optional: set the step size
+                        ],
+                        'title' => [
+                            'display' => true,
+                            'text' => 'Nivel de interés',
+                            'color' => 'black',
+                            'font' => [
+                                'size' => 15,
+                                'weight' => 'bold',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+
+
+
+        // Encode chart configurations
+        $encodedPieChartConfig = urlencode(json_encode($pieChartConfig));
+        $encodedBarChartConfig = urlencode(json_encode($barChartConfig));
+
+        // Create the chart URLs
+        $pieChartUrl = "https://quickchart.io/chart?c=" . $encodedPieChartConfig;
+        $barChartUrl = "https://quickchart.io/chart?c=" . $encodedBarChartConfig;
+
+        // Pass chart URLs to the Blade view for PDF generation
+        return view('pdfReport', [
+            'userName' => $userName,
+            'academicAreas' => $academicAreas,
+            'pieChartUrl' => $pieChartUrl,
+            'barChartUrl' => $barChartUrl,
+        ]);
+
+    }
+
+
     public function testDownloadSpecificReport()
     {
         //First get the headers (the questions) of the specific form.
@@ -184,10 +327,9 @@ class FormAnswerResultController extends Controller
 
 
     public function showGraph(Request $request){
-        $user = json_decode($request->input('user'));
-//        return Inertia::render('Results/Index', ['user' => ['name' => "Prueba", 'identification' => 45435]]);
-        return Inertia::render('Results/Index', ['user' => ['name' => $user->userName, 'identification' => $user->identification]]);
-
+        $name = ($request->input('name'));
+        $identification = ($request->input('identification'));
+        return Inertia::render('Results/Index', ['user' => ['name' => $name, 'identification' => $identification]]);
     }
 
     /**
