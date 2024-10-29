@@ -90,12 +90,15 @@
                 </v-card-text>
                 <v-card-text>El test ha sido diligenciado exitosamente. A continuación podrás evidenciar el puntaje obtenido
                 </v-card-text>
+
+                <h4 style="text-align: center"> Para una óptima visualización de tus resultados, se recomienda que posiciones el celular de manera horizontal</h4>
+
                 <v-card-actions>
                     <v-spacer></v-spacer>
 
-                    <form :action="route('results.showGraph')" method="POST">
-                        <input type="hidden" name="user" :value="JSON.stringify(user)">
-                        <input type="hidden" name="answers" :value="JSON.stringify(this.test.questions)">
+                    <form :action="route('results.showGraph')" method="GET">
+                        <input type="hidden" name="name" :value="user.userName">
+                        <input type="hidden" name="identification" :value="user.identification">
                         <v-btn
                             type="submit"
                             color="primario"
@@ -178,6 +181,7 @@ export default {
     },
 
     async created() {
+        console.log(this.user,'El users')
         this.parseQuestions()
         this.shuffleQuestions(this.test.questions);
         this.isLoading = false;
