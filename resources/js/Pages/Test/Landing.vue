@@ -15,7 +15,7 @@
                 <v-card-title style="justify-content: center">
                         <span>
                         </span>
-                    <h3>Consentttimiento</h3>
+                    <h3>Consentimiento</h3>
                 </v-card-title>
                 <v-card-text>
                     <v-container style="text-align: center">
