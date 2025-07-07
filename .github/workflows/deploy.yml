@@ -1,0 +1,30 @@
+// filepath: /home/usuario/Escritorio/career-guidence/career-guidance/.github/workflows/deploy.yml
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main  # O la rama que uses para producción
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      
+      - name: Add server to known_hosts
+        run: |
+          ssh-keyscan -H 172.19.18.42 >> ~/.ssh/known_hosts
+
+      - name: Deploy via SSH
+        run: |
+          ssh g3@172.19.18.42 "cd /var/www/career-guidance && git pull origin main && composer install --no-interaction --prefer-dist --optimize-autoloader && npm install && npm run build"
