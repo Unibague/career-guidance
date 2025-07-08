@@ -27,6 +27,11 @@ jobs:
           ssh g3@172.19.18.42 << 'EOF'
             cd /var/www/career-guidance
             git pull origin main
+
+            # Crear red si no existe
+            docker network inspect app_net >/dev/null 2>&1 || \
+            docker network create --driver=bridge --subnet=192.168.101.0/24 app_net
+
             docker compose down
             docker compose up -d --build
           EOF

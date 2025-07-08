@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: orientacion-backend
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "80:80"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      app_net:
+        ipv4_address: 192.168.101.10
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: orientacion-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    networks:
+      app_net:
+        ipv4_address: 192.168.101.12
+
+  redis:
+    image: redis:alpine
+    container_name: orientacion-redis
+    ports:
+      - "6379:6379"
+    networks:
+      app_net:
+        ipv4_address: 192.168.101.11
+
+  db:
+    image: postgres:16-alpine
+    container_name: orientacion-db
+    environment:
+      POSTGRES_DB: career_guidance
+      POSTGRES_USER: desarrollador
+      POSTGRES_PASSWORD: Ed?3p20DB23
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      app_net:
+        ipv4_address: 192.168.101.13
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.101.0/24
+
+volumes:
+  db_data:
